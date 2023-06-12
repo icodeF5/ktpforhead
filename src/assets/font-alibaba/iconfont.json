@@ -1,0 +1,23 @@
+{
+  "id": "3669792",
+  "name": "课堂派",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "6192595",
+      "name": "铃铛",
+      "font_class": "lingdang",
+      "unicode": "e636",
+      "unicode_decimal": 58934
+    },
+    {
+      "icon_id": "9059906",
+      "name": "任务",
+      "font_class": "renwu",
+      "unicode": "e62e",
+      "unicode_decimal": 58926
+    }
+  ]
+}
