@@ -32,7 +32,7 @@
                 <el-dropdown @command="handleCommand" trigger="click" placement="top-start" v-show='!isOwner'>
                     <img alt="" src="../assets/zankai.png" style="width: 14px;margin-left: 5px">
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="a1">归档</el-dropdown-item>
+                        <el-dropdown-item command="a1" @click.native="openGuiDang">归档</el-dropdown-item>
                         <el-dropdown-item command="b1">退课</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -41,7 +41,7 @@
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item command="a">删除</el-dropdown-item>
                         <el-dropdown-item command="b">编辑</el-dropdown-item>
-                        <el-dropdown-item command="c">归档管理</el-dropdown-item>
+                        <el-dropdown-item command="c" @click.native="openGuiDang">归档管理</el-dropdown-item>
                         <el-dropdown-item command="d">复制成新课程</el-dropdown-item>
                         <el-dropdown-item command="e">复制到已有课程</el-dropdown-item>
                         <el-dropdown-item command="f">打包下载</el-dropdown-item>
@@ -51,25 +51,103 @@
                 </el-dropdown>
             </div>
         </div>
+        <el-dialog :visible.sync="guiDangDialogTea" title="要归档此课程吗" width="450px" top="30vh">
+            你可以在
+            <span class="font-color--main">"课程-归档管理"</span>
+            中查看此课程<br>
+            <span class="font-color--main">【归档全部】</span>
+            学生的课程也会一起被归档<br>
+            <span class="font-color--main">【归档自己】</span>
+            学生的课程不会被归档
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="guiDangDialogTea = false" size="small">取 消</el-button>
+                <el-button @click="guiDangForAll" size="small">归档全部</el-button>
+                <el-button type="primary" @click="guiDangForMe" size="small">归档自己</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog :visible.sync="guiDangDialogStu" title="要归档此课程吗" width="450px" top="30vh">
+            您可以在
+            <span class="font-color--main">"课程-归档管理"</span>
+            中查看此课程
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="guiDangDialogTea = false" size="small">取 消</el-button>
+                <el-button type="primary" @click="guiDangForMe" size="small">归档自己</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 <script>
 import {mapState} from "vuex";
 import axios from "axios";
+import {getRequest} from "network/request";
+import url from "network/url";
+import fa from "element-ui/src/locale/lang/fa";
 
 export default {
     name: "Class",
-    props: ['sClass', "top"],
+    props: ['sClass', "isTop"],
     data() {
         return {
             bcImg: require("../assets/bg/5.png"),
-            isTop: this.contains(this.top, this.sClass),
             isOwner: this.sClass.ownerId === sessionStorage.getItem("accountName"),
+            guiDangDialogTea:false,
+            guiDangDialogStu:false,
         }
+    },
+    computed:{
+      ...mapState(['isTeacher'])
     },
     methods: {
         handleCommand2(command) {
 
+        },
+        openGuiDang(){
+            console.log("进入归档")
+            if(this.isOwner){
+                this.guiDangDialogTea = true
+            }else{
+                this.guiDangDialogStu = true
+            }
+        },
+        guiDangForAll(){
+            getRequest(url.course.guiDangForAll,{
+                code:this.sClass.code,
+                accountName:sessionStorage.getItem("accountName")
+            }).then(result=>{
+                this.$message({
+                    type:result.r,
+                    message:result.message
+                })
+                this.$bus.$emit("guiDang",this.sClass,'create',this.isTop)
+                this.guiDangDialogTea = false
+            })
+        },
+        guiDangForMe(){
+            if(this.isOwner){
+                getRequest(url.course.guiDangForTea,{
+                    code:this.sClass.code,
+                    accountName:sessionStorage.getItem("accountName")
+                }).then(result=>{
+                    this.$message({
+                        type:result.r,
+                        message:result.message
+                    })
+                    this.$bus.$emit("guiDang",this.sClass,'create',this.isTop)
+                    this.guiDangDialogTea = false
+                })
+            }else{
+                getRequest(url.course.guiDangForStu,{
+                    code:this.sClass.code,
+                    accountName:sessionStorage.getItem("accountName")
+                }).then(result=>{
+                    this.$message({
+                        type:result.r,
+                        message:result.message
+                    })
+                    this.$bus.$emit("guiDang",this.sClass,'join',this.isTop)
+                    this.guiDangDialogStu = false
+                })
+            }
         },
         //退课方法
         handleCommand(command) {
@@ -115,22 +193,6 @@ export default {
         toClassDetail() {
             this.$bus.$emit("toClassDetail", this.sClass);
         },
-        contains(arr, value) {
-            for (let i = 0; i < arr.length; i++) {
-                if (arr[i].name === value.name &&
-                    arr[i].isMix === value.isMix &&
-                    arr[i].personNum === value.personNum &&
-                    arr[i].className === value.className &&
-                    arr[i].endTime === value.endTime &&
-                    arr[i].startTime === value.startTime &&
-                    arr[i].ownerId === value.ownerId &&
-                    arr[i].ownerName === value.ownerName &&
-                    arr[i].code === value.code) {
-                    return true;
-                }
-            }
-            return false;
-        },
     },
     mounted() {
 
@@ -138,6 +200,24 @@ export default {
 }
 </script>
 <style scoped>
+>>>.el-dialog__header{
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 1px solid #dadce0;
+}
+>>>.el-dialog__body {
+    padding: 20px 15px 15px 15px;
+    color: #606266;
+    text-align: left;
+    font-size: 14px;
+    word-break: break-all;
+}
+>>>.el-dialog__footer {
+    padding: 10px 20px 10px;
+    text-align: right;
+    box-sizing: border-box;
+    border-top: 1px solid #dadce0;
+}
 .view-home .tag-flag.role-s {
     background-color: #fff;
     border: 1px solid #4285f4;

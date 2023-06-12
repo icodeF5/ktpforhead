@@ -11,6 +11,9 @@ const url = {
         getAllStudent:"/course/getAllStudent",
         getByCode:"/course/getByCode",
         noGuiDang:"/course/noGuiDang",
+        guiDangForStu:"/course/guiDangForStu",
+        guiDangForTea:"/course/guiDangForTea",
+        guiDangForAll:"/course/guiDangForAll",
     },
     user:{
         loginKtp:"/user/loginKtp",

@@ -50,7 +50,8 @@ export default {
             console.log("调用恢复方法！@")
             getRequest(url.course.noGuiDang,{
                 code:this.sClass.code,
-                type:this.type
+                type:this.type,
+                accountName:this.accountName
             }).then(result=>{
                 this.$message({
                     type:'success',

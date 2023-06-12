@@ -23,7 +23,7 @@
                         </div>
                     </div>
                     <div v-show="topClass.length" class="class-box">
-                        <Class v-for="c in topClass" :key="c.code" :sClass="c" :top="topClass"/>
+                        <Class v-for="c in topClass" :key="c.code" :sClass="c" :isTop="true"/>
                     </div>
                 </div>
                 <div v-show="topClass.length===0" class="header-common-border">
@@ -73,11 +73,11 @@
                     </div>
                 </div>
                 <div v-show="active.activeName==='third'">
-                    <ClassBox v-for="c in teachClass" :key="c.code" :sClass="c" :top="topClass"
+                    <ClassBox v-for="c in teachClass" :key="c.code" :sClass="c" :isTop="findTop(c)"
                               v-show="teachClass.length!==0&&scout===''"/>
                     <div class="class-box" v-show="scout!==''">
                         <Class v-for="c in  noGroupTeachClass.filter(data=>scoutClass(data))" :key="c.code" :sClass="c"
-                               :top="topClass"/>
+                               :isTop="findTop(c)"/>
                     </div>
                     <div
                         v-show="teachClass.length===0||(teachClass.filter(data=>findClass(data).length===0)&&scout!=='')">
@@ -86,11 +86,11 @@
                 </div>
                 <!--                展示加入课堂页面-->
                 <div v-show="active.activeName==='second'">
-                    <ClassBox v-for="c in Class" :key="c.code" :sClass="c" :top="topClass"
+                    <ClassBox v-for="c in Class" :key="c.code" :sClass="c" :isTop="findTop(c)"
                               v-show="Class.length!==0&&scout===''"/>
                     <div class="class-box" v-show="scout!==''">
                         <Class v-for="c in  noGroupClass.filter(data=>scoutClass(data))" :key="c.code" :sClass="c"
-                               :top="topClass"/>
+                               :isTop="findTop(c)"/>
                     </div>
                     <div v-show="Class.length===0">
                         <NoData/>
@@ -156,75 +156,81 @@
                     <el-button type="primary" @click.native="creatClass">确 定</el-button>
                 </div>
             </el-dialog>
-            <el-dialog :visible.sync="guiDang" class="guidang-dialog" width="884px" :close-on-click-modal="false" title="归档管理" top="7vh">
-                <div class="file-header flex-between">
-                    <el-tabs class="left" v-model="active.guiDangActiveName" @tab-click="guiDangTabClick">
-                        <el-tab-pane :label="'我教的('+countGuiDang(guiDangCreateClass)+')'" name="first" v-show="isTeacher"></el-tab-pane>
-                        <el-tab-pane :label="'我学的('+countGuiDang(guiDangJoinClass)+')'" name="second"></el-tab-pane>
-                        <el-tab-pane label="我协助的(0)" name="3"></el-tab-pane>
-                    </el-tabs>
-                    <div class="flex-between">
-                        <el-input
-                            placeholder="请输入关键字搜索"
-                            suffix-icon="el-icon-search"
-                            style="margin-left: 20px;border-radius: 25px"
-                            v-model="guiDangScout">
-                        </el-input>
-                    </div>
-                </div>
-                <div class="file-box flex-between" v-show="active.guiDangActiveName==='first'">
-                    <div class="semester">
-                        <p class="item" v-for="(item,index) in guiDangCreateClass" :key="index" :class="{
-                            active : index = guiDangIndex
-                        }" @click="guiDangIndex = index">
-                            {{item[0].startTime}}-{{item[0].endTime}}&nbsp;{{item[0].season===1?'第一学期':'第二学期'}}
-                        </p>
-                    </div>
-                    <div class="list-box">
-                        <gui-dang-class v-for="item in guiDangCreateClass[guiDangIndex-1]" :ke="item.code" :sClass="item" :type="'create'">
-                        </gui-dang-class>
-                        <div class="component-no_data" v-show="guiDangCreateClass.length===0">
-                            <div class="img-box">
-                                <img src="../assets/empty.png" alt="" class="no-data">
-                            </div>
-                            "暂无数据"
+            <div class="test">
+                <el-dialog :visible.sync="guiDang" class="guidang-dialog" width="884px" :close-on-click-modal="false" title="归档管理" top="7vh">
+                    <div class="file-header flex-between">
+                        <el-tabs class="left" v-model="active.guiDangActiveName" @tab-click="guiDangTabClick"  v-show="isTeacher">
+                            <el-tab-pane :label="'我教的('+countGuiDang(guiDangCreateClass)+')'" name="first"></el-tab-pane>
+                            <el-tab-pane :label="'我学的('+countGuiDang(guiDangJoinClass)+')'" name="second"></el-tab-pane>
+                            <el-tab-pane label="我协助的(0)" name="3"></el-tab-pane>
+                        </el-tabs>
+                        <el-tabs class="left" v-model="active.guiDangActiveName" @tab-click="guiDangTabClick" v-show="!isTeacher">
+                            <el-tab-pane :label="'我学的('+countGuiDang(guiDangJoinClass)+')'" name="second"></el-tab-pane>
+                            <el-tab-pane label="我协助的(0)" name="3"></el-tab-pane>
+                        </el-tabs>
+                        <div class="flex-between">
+                            <el-input
+                                placeholder="请输入关键字搜索"
+                                suffix-icon="el-icon-search"
+                                style="margin-left: 20px;border-radius: 25px"
+                                v-model="guiDangScout">
+                            </el-input>
                         </div>
                     </div>
-                </div>
-                <div class="file-box flex-between" v-show="active.guiDangActiveName==='second'">
-                    <div class="semester">
-                        <p class="item" v-for="(item,index) in guiDangJoinClass" :key="index" :class="{
+                    <div class="file-box flex-between" v-show="active.guiDangActiveName==='first'">
+                        <div class="semester">
+                            <p class="item" v-for="(item,index) in guiDangCreateClass" :key="index" :class="{
+                            active : index === guiDangIndex
+                        }" @click="guiDangIndex = index">
+                                {{item[0].startTime}}-{{item[0].endTime}}&nbsp;{{item[0].season===1?'第一学期':'第二学期'}}
+                            </p>
+                        </div>
+                        <div class="list-box">
+                            <gui-dang-class v-for="item in guiDangCreateClass[guiDangIndex]" :key="item.code" :sClass="item" :type="'create'">
+                            </gui-dang-class>
+                            <div class="component-no_data" v-show="guiDangCreateClass.length===0">
+                                <div class="img-box">
+                                    <img src="../assets/empty.png" alt="" class="no-data">
+                                </div>
+                                "暂无数据"
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-box flex-between" v-show="active.guiDangActiveName==='second'">
+                        <div class="semester">
+                            <p class="item" v-for="(item,index) in guiDangJoinClass" :key="index" :class="{
                             active:index===guiDangIndex
                         }" @click="guiDangIndex = index">
-                            {{item[0].startTime}}-{{item[0].endTime}}&nbsp;{{item[0].season===1?'第一学期':'第二学期'}}
-                        </p>
-                    </div>
-                    <div class="list-box">
-                        <gui-dang-class v-for="(item,index) in guiDangJoinClass[guiDangIndex]" :ke="item.code" :sClass="item" :type="'join'">
-                        </gui-dang-class>
-                        <div class="component-no_data" v-show="guiDangJoinClass.length===0">
-                            <div class="img-box">
-                                <img src="../assets/empty.png" alt="" class="no-data">
+                                {{index}}-{{item[0].startTime}}-{{item[0].endTime}}&nbsp;{{item[0].season===1?'第一学期':'第二学期'}}
+                            </p>
+                        </div>
+                        <div class="list-box">
+                            <gui-dang-class v-for="(item,index) in guiDangJoinClass[guiDangIndex]" :ke="item.code" :sClass="item" :type="'join'">
+                            </gui-dang-class>
+                            <div class="component-no_data" v-show="guiDangJoinClass.length===0">
+                                <div class="img-box">
+                                    <img src="../assets/empty.png" alt="" class="no-data">
+                                </div>
+                                "暂无数据"
                             </div>
-                            "暂无数据"
                         </div>
                     </div>
-                </div>
-                <div class="file-box flex-between" v-show="active.guiDangActiveName==='3'">
-                    <div class="semester"></div>
-                    <div class="list-box">
-                        <div class="component-no_data">
-                            <div class="img-box">
-                                <img src="../assets/empty.png" alt="" class="no-data">
+                    <div class="file-box flex-between" v-show="active.guiDangActiveName==='3'">
+                        <div class="semester"></div>
+                        <div class="list-box">
+                            <div class="component-no_data">
+                                <div class="img-box">
+                                    <img src="../assets/empty.png" alt="" class="no-data">
+                                </div>
+                                "暂无数据"
                             </div>
-                            "暂无数据"
                         </div>
                     </div>
-                </div>
-                <div slot="footer" class="dialog-footer">
-                    <el-button type="primary" @click="guiDang = false">确 定</el-button>
-                </div>
-            </el-dialog>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button type="primary" @click="guiDang = false">确 定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
         </div>
     </div>
 </template>
@@ -310,10 +316,11 @@ export default {
             guiDangJoinClass:[],
             guiDangCreateClass:[],
             guiDangScout:"",
-            guiDangIndex:1,
+            guiDangIndex:0,
         }
     },
     methods: {
+        //搜索课程使用
         findClass(data) {
             let ans = []
             for (let i = 0; i < data.length; i++) {
@@ -323,16 +330,28 @@ export default {
             }
             return ans;
         },
+        //查看课程是否在指定课程
+        findTop(item){
+            for(let i = 0;i<this.topClass.length;i++){
+                if(this.topClass[i].code===item.code){
+                    console.log("truehhhh")
+                    return true
+                }
+            }
+            return  false;
+        },
         // 归档管理
         guidang() {
             this.guiDang = true
-            getRequest(url.user.getGroupCreateClass,{
-                accountName:sessionStorage.getItem("accountName"),
-                isGuiDang:true
-            }).then(result=>{
-                console.log(result.r)
-                this.guiDangCreateClass = result.r
-            })
+            if(this.isTeacher){
+                getRequest(url.user.getGroupCreateClass,{
+                    accountName:sessionStorage.getItem("accountName"),
+                    isGuiDang:true
+                }).then(result=>{
+                    console.log(result.r)
+                    this.guiDangCreateClass = result.r
+                })
+            }
             getRequest(url.user.getGroupJoinClass,{
                 accountName:sessionStorage.getItem("accountName"),
                 isGuiDang:true
@@ -343,7 +362,7 @@ export default {
         },
         guiDangTabClick(tab){
             sessionStorage.setItem("guiDangTab",tab.name)
-            this.guiDangIndex = 1;
+            this.guiDangIndex = 0;
         },
         countGuiDang(arr){
             let cnt = 0;
@@ -510,61 +529,173 @@ export default {
             })
         },
         noGuiDang(sClass,type,isTop){
-            console.log(sClass)
-            console.log(type)
-            console.log(isTop)
             if(isTop){
                 this.topClass.push(sClass)
             }
             if(type==='join'){
+                let flag = true;
                 for(let i = 0;i<this.Class.length;i++){
                     if(this.Class[i][0].startTime===sClass.startTime&&
                         this.Class[i][0].endTime===sClass.endTime&&
                         this.Class[i][0].season===sClass.season){
+                        console.log("hhhhh")
+                        flag = false
                         this.Class[i].push(sClass)
+                    }else if(this.Class[i][0].startTime<sClass.startTime){
+                        this.Class.splice(i,0,[sClass])
+                        flag = false
                     }
                 }
-                for (let i = 0; i < this.guiDangJoinClass.length; i++) {
-                    if (this.guiDangJoinClass[i].code === sClass.code) {
-                        this.guiDangJoinClass.splice(i, 1);
-                        break;
-                    }
+                if(flag){
+                    this.Class.push([sClass])
+                }
+                flag = true
+                for (let i = 0; i < this.guiDangJoinClass.length&&flag; i++) {
+                   for(let q = 0;q<this.guiDangJoinClass[i].length;q++){
+                       if(this.guiDangJoinClass[i][q].code===sClass.code){
+                           this.guiDangJoinClass[i].splice(q,1)
+                           if(this.guiDangJoinClass[i].length===0){
+                               this.guiDangJoinClass.splice(i,1)
+                           }
+                           flag = false
+                           console.log("已从归档加入课程移除")
+                           break;
+                       }
+                   }
                 }
             }else{
+                let flag = true
                 for(let i = 0;i<this.teachClass.length;i++){
                     if(this.teachClass[i][0].startTime===sClass.startTime&&
                         this.teachClass[i][0].endTime===sClass.endTime&&
                         this.teachClass[i][0].season===sClass.season){
+                        console.log("hhhhh")
+                        flag = false
                         this.teachClass[i].push(sClass)
+                    }else if(this.teachClass[i][0].startTime<sClass.startTime){
+                        flag = false
+                        this.teachClass.splice(i,0,[sClass])
                     }
                 }
-                for (let i = 0; i < this.guiDangCreateClass.length; i++) {
-                    if (this.guiDangCreateClass[i].code === sClass.code) {
-                        this.guiDangCreateClass.splice(i, 1);
+                if(flag){
+                    this.teachClass.push([sClass])
+                }
+                flag = true
+                for (let i = 0; i < this.guiDangCreateClass.length&&flag; i++) {
+                    for(let q = 0;q<this.guiDangCreateClass[i].length;q++){
+                        if(this.guiDangCreateClass[i][q].code===sClass.code){
+                            this.guiDangCreateClass[i].splice(q,1)
+                            if(this.guiDangCreateClass[i].length===0){
+                                this.guiDangCreateClass.splice(i,1)
+                            }
+                            flag = false
+                            console.log("已从归档创建课程移除")
+                            break;
+                        }
+                    }
+                }
+            }
+            this.$forceUpdate()
+            this.guiDangIndex = 0;
+            console.log('重新渲染')
+        },
+        guiDangM(sClass,type,isTop){
+            if(isTop){
+                for(let i = 0;i<this.topClass.length;i++){
+                    if(this.topClass[i].startTime===sClass.startTime&&
+                        this.topClass[i].endTime===sClass.endTime&&
+                        this.topClass[i].season===sClass.season){
+                        this.topClass.splice(i,1);
+                        console.log("已从置顶课程移除...")
                         break;
                     }
                 }
             }
+            if(type==='join'){
+                let flag = true;
+                for(let i = 0;i<this.Class.length&&flag;i++){
+                    for(let q = 0;q<this.Class[i].length;q++){
+                        if(this.Class[i][q].code===sClass.code){
+                            this.Class[i].splice(q,1)
+                            if(this.Class[i].length===0){
+                                this.Class.splice(i,1)
+                            }
+                            flag = false
+                            console.log("已从加入课程移除")
+                            break;
+                        }
+                    }
+                }
+                flag = true;
+                for(let i = 0;i<this.guiDangJoinClass.length;i++){
+                    if(this.guiDangJoinClass[i][0].startTime===sClass.startTime&&
+                        this.guiDangJoinClass[i][0].endTime===sClass.endTime&&
+                        this.guiDangJoinClass[i][0].season===sClass.season){
+                        flag = false
+                        this.guiDangJoinClass[i].push(sClass)
+                    }else if(this.guiDangJoinClass[i][0].startTime<sClass.startTime){
+                        this.guiDangJoinClass.splice(i,0,[sClass])
+                        flag = false
+                    }
+                }
+                if(flag){
+                    this.guiDangJoinClass.push([sClass])
+                }
+            }else{
+                let flag = true
+                for(let i = 0;i<this.teachClass.length&&flag;i++){
+                    for(let q = 0;q<this.teachClass[i].length;q++){
+                        if(this.teachClass[i][q].code===sClass.code){
+                            this.teachClass[i].splice(q,1)
+                            if(this.teachClass[i].length===0){
+                                this.teachClass.splice(i,1)
+                            }
+                            flag = false
+                            console.log("已从创建课程移除")
+                            break;
+                        }
+                    }
+                }
+                flag = true;
+                for(let i = 0;i<this.guiDangCreateClass.length;i++){
+                    if(this.guiDangCreateClass[i][0].startTime===sClass.startTime&&
+                        this.guiDangCreateClass[i][0].endTime===sClass.endTime&&
+                        this.guiDangCreateClass[i][0].season===sClass.season){
+                        flag = false
+                        this.guiDangCreateClass[i].push(sClass)
+                    }else if(this.guiDangCreateClass[i][0].startTime<sClass.startTime){
+                        this.guiDangCreateClass.splice(i,0,[sClass])
+                        flag = false
+                    }
+                }
+                if(flag){
+                    this.guiDangCreateClass.push([sClass])
+                }
+            }
+            this.$forceUpdate()
+            this.guiDangIndex = 0
+            console.log('重新渲染')
         }
     },
     mounted() {
         this.$bus.$on("setTop", this.setTop);//给class组件用
         this.$bus.$on("deleteTop", this.deleteTop);//给class组件用
         this.$bus.$on('noGuiDang',this.noGuiDang)//给guiDangClass组件用
+        this.$bus.$on('guiDang',this.guiDangM)//给class组件使用。
         this.iniALL();
         console.log(this.isTeacher)
     }
 }
 </script>
 <style scoped>
->>> .el-dialog__header {
+>>>.test .el-dialog__header {
     padding: 20px 20px 10px;
     text-align: left;
     font-weight: bold;
     border-bottom: 1px solid #dadce0;
 }
 
->>> .el-dialog__footer {
+>>>.test .el-dialog__footer {
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, .1);
 }
 
@@ -577,7 +708,7 @@ export default {
     color: black;
 }
 
->>> .el-dialog__body {
+>>>.test .el-dialog__body {
     height: 505px;
     display: flex;
     flex-flow: column nowrap;

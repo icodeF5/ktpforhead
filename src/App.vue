@@ -58,6 +58,9 @@ li, menu, nav, ol, p, section, select, table, tbody, td, textarea, th, tr, ul, v
     align-items: center;
     justify-content: space-between;
 }
+.font-color--main {
+    color: #4285f4;
+}
 html, body, #app {
     width: 100%;
 }

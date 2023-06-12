@@ -20,7 +20,7 @@
         <div class="class-box">
             <el-collapse-transition>
                 <div v-show="isOpen">
-                    <Class v-for="c in sClass" :key="c.code" :sClass="c" :top="top"/>
+                    <Class v-for="c in sClass" :key="c.code" :sClass="c" :isTop="isTop"/>
                 </div>
             </el-collapse-transition>
         </div>
@@ -33,7 +33,7 @@ import {mapState} from "vuex";
 export default {
     //sClass是属于同一学期的课程
     //isTeach是判断是否是自己教学的课程
-    props:['sClass','top'],
+    props:['sClass','isTop'],
     name:"ClassBox",
     components: {Class},
     data(){

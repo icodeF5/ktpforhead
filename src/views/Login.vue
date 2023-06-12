@@ -99,8 +99,8 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item v-show="!loginUser.isTeacher">
-                                <el-input placeholder="请输入学号"></el-input>
+                            <el-form-item v-show="!loginUser.isTeacher" prop="studentId">
+                                <el-input placeholder="请输入学号" v-model="loginUser.studentId"></el-input>
                             </el-form-item>
                         </el-form>
                         <div class="form-bottom-box">
@@ -144,7 +144,8 @@ export default {
                 password2: "",
                 name: "",
                 isTeacher: true,
-                school: ""
+                school: "",
+                studentId:null,
             },
             schoolLoading: true,
             isLogin: true,
@@ -185,6 +186,9 @@ export default {
                 school: [
                     {required: true, message: "不能为空", trigger: "blur"}
                 ],
+                studentId:[
+                    {require:true,message:"不能为空",trigger:"blur"}
+                ]
             },
             // 初始化下次自动登录框状态
             autoLogin: false,
@@ -229,6 +233,7 @@ export default {
                     accountName: this.user.username,
                     password: this.user.password
                 }).then(result => {
+
                     if (result.success) {
                         sessionStorage.setItem("accountName",this.user.username);
                         sessionStorage.setItem('heads', JSON.stringify([]));
@@ -257,17 +262,37 @@ export default {
                     password: user.password,
                     name: user.name,
                     role: user.isTeacher ? 1 : 0,
-                    school: user.school
+                    school: user.school,
+                    userId:user.studentId,
                 }).then(result => {
+                    console.log(result)
                     if (result.success) {
                         this.$message({
                             type:"success",
                             message:"创建成功"
                         })
                         window.location.reload();
+                    }else{
+                        this.$message({
+                            type:"error",
+                            message:result.message,
+                        })
+                        this.recover()
                     }
                 })
             })
+        },
+        recover(){
+            //注册的信息
+            this.loginUser =  {
+                accountName: "",
+                    password: "",
+                    password2: "",
+                    name: "",
+                    isTeacher: true,
+                    school: "",
+                    studentId:null,
+            }
         },
         //学校搜索
         loadAll() {
