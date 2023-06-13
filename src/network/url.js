@@ -34,6 +34,7 @@ const url = {
         getAllStudent:"/homeWork/getAllStudent",
         getById:"/homeWork/getById",
         setGrades:"/homeWork/setGrades",
+        getStuHomework:"/homeWork/getStuHomework"
     }
 }
 
