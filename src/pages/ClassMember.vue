@@ -119,6 +119,7 @@ export default {
     },
 
     inputChange() {
+      console.log("进入ssss")
       if (this.input === '') {
         if (this.teaFlag === '1') {
           this.showTeacher()
@@ -160,7 +161,7 @@ export default {
         <div class="session_search">
           <el-input
               v-model="input"
-              @change="inputChange"
+              @input="inputChange"
               clearable
               placeholder="搜索姓名、学号"
               suffix-icon="el-icon-search">
@@ -193,7 +194,7 @@ export default {
               <div class="list" >
 
                 <div style="display: flex;flex-direction: row;align-items: center;width: 300px" class="teacher"
-                     @click="showActive=true" :class="{
+                     @click="showActive=!showActive" :class="{
                 teacherTeamActive:this.showActive,
 
               }">
@@ -688,7 +689,6 @@ export default {
 .img{
   -moz-transform:rotate(90deg);
   -webkit-transform:rotate(90deg);
-
 }
 
 .member-list .head .classRom {
@@ -725,8 +725,6 @@ span {
 .view-member {
   width: 1150px;
   margin: 0 auto;
-
-
 }
 
 .view-member .viewCon .le {
