@@ -105,7 +105,7 @@
                         </el-form>
                         <div class="form-bottom-box">
                             <div class="login-btn">
-                                <button class="loginBtn" @click="loginAcc(loginUser)">
+                                <button class="loginBtn" @click="loginAcc">
                                     <span>注册</span>
                                 </button>
                             </div>
@@ -195,7 +195,20 @@ export default {
         };
     },
     computed: {},
-    watch: {},
+    watch: {
+      isLogin(newT){
+        if (newT){
+          window.removeEventListener("keydown", this.keyDown2, false);
+          window.addEventListener("keydown", this.keyDownL);
+          this.resetForm('loginUser')
+        }
+        else {
+          window.removeEventListener("keydown", this.keyDownL, false);
+          window.addEventListener("keydown", this.keyDown2);
+          this.resetForm('user')
+        }
+      }
+    },
     methods: {
         beTeacher() {
             this.active = true;
@@ -226,11 +239,20 @@ export default {
                 this.$refs.autoLogin.style.color = "#2C3E50";
             }
         },
-      keyDown(e) {
+      keyDownL(e) {
         // 回车则执行登录方法 enter键的ASCII是13
         if (e.keyCode === 13) {
           this.login(); // 定义的登录方法
         }
+      },
+      keyDown2(e) {
+        // 回车则执行登录方法 enter键的ASCII是13
+        if (e.keyCode === 13) {
+          this.loginAcc(); // 定义的登录方法
+        }
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
       },
       // 登录
         login() {
@@ -260,15 +282,15 @@ export default {
 
         },
         //注册
-        loginAcc(user) {
+        loginAcc() {
             this.$refs.loginUser.validate().then(() => {
                 postRequest(url.user.loginAccount, {}, {
-                    accountName: user.accountName,
-                    password: user.password,
-                    name: user.name,
-                    role: user.isTeacher ? 1 : 0,
-                    school: user.school,
-                    userId:user.studentId,
+                    accountName: this.loginUser.accountName,
+                    password: this.loginUser.password,
+                    name: this.loginUser.name,
+                    role: this.loginUser.isTeacher ? 1 : 0,
+                    school: this.loginUser.school,
+                    userId:this.loginUser.studentId,
                 }).then(result => {
                     console.log(result)
                     if (result.success) {
@@ -311,11 +333,14 @@ export default {
     },
     mounted() {
         this.loadAll();
-      window.addEventListener("keydown", this.keyDown);
+      window.addEventListener("keydown", this.keyDownL);
     },
   destroyed() {
     // 销毁事件
-    window.removeEventListener("keydown", this.keyDown, false);
+    if (this.isLogin)
+    window.removeEventListener("keydown", this.keyDownL, false);
+    else
+      window.removeEventListener("keydown", this.keyDown2, false);
   },
 };
 </script>
