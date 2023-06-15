@@ -226,14 +226,19 @@ export default {
                 this.$refs.autoLogin.style.color = "#2C3E50";
             }
         },
-        // 登录
+      keyDown(e) {
+        // 回车则执行登录方法 enter键的ASCII是13
+        if (e.keyCode === 13) {
+          this.login(); // 定义的登录方法
+        }
+      },
+      // 登录
         login() {
             this.$refs.user.validate().then(() => {
                 getRequest(url.user.loginKtp, {
                     accountName: this.user.username,
                     password: this.user.password
                 }).then(result => {
-
                     if (result.success) {
                         sessionStorage.setItem("accountName",this.user.username);
                         sessionStorage.setItem('heads', JSON.stringify([]));
@@ -306,7 +311,12 @@ export default {
     },
     mounted() {
         this.loadAll();
-    }
+      window.addEventListener("keydown", this.keyDown);
+    },
+  destroyed() {
+    // 销毁事件
+    window.removeEventListener("keydown", this.keyDown, false);
+  },
 };
 </script>
 <!--给HTML的DOM节点加一个不重复data属性(形如：data-v-2311c06a)来表示他的唯一性-->

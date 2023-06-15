@@ -390,7 +390,7 @@
                                                    style="font-size: 16px;color: #4d90fe;" @click="cuijiao(scope.row)">
                                             催交
                                         </el-button>
-                                        <el-button v-if="scope.row.annex.work!=null" type="text"
+                                        <el-button v-if="scope.row.annex.work!=null" type="text" @click="openNew(scope.row.user.name,scope.row)"
                                                    style="font-size: 16px;color: #4d90fe;">
                                             进入批阅
                                         </el-button>
@@ -516,6 +516,20 @@ export default {
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
         },
+      //进入批阅
+      openNew: function (name, stu) {
+        console.log(stu)
+        let post1 = JSON.stringify(stu)
+        let post2 = JSON.stringify(this.homeWork)
+        let routeData = this.$router.resolve({
+          path: "/PreviewJob",
+          query: {
+            stu: encodeURIComponent(post1),
+            homeWork: encodeURIComponent(post2)
+          }
+        });
+        window.open(routeData.href, '_blank');
+      },
         //提交作业
         submitWork() {
             this.$refs.upload.submit();

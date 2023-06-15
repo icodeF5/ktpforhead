@@ -65,6 +65,7 @@ li, menu, nav, ol, p, section, select, table, tbody, td, textarea, th, tr, ul, v
 }
 html, body, #app {
     width: 100%;
+  height: 100%;
 }
 
 ol,ul{
