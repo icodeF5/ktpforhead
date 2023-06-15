@@ -7,6 +7,7 @@ import ViewHome from "components/viewHome.vue";
 import Task from "@/pages/Task.vue";
 import Work from "@/pages/work.vue";
 import ClassMember from "@/pages/ClassMember.vue";
+import PreviewJob from "@/pages/PreviewJob";
 
 
 Vue.use(VueRouter)
@@ -30,6 +31,10 @@ const router = new VueRouter({
         {
             path:"/login",
             component:Login,
+        },
+        {
+            path:"/PreviewJob",
+            component:PreviewJob
         },
         {
             path:"/main",
