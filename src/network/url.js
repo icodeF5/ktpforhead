@@ -14,6 +14,7 @@ const url = {
         guiDangForStu:"/course/guiDangForStu",
         guiDangForTea:"/course/guiDangForTea",
         guiDangForAll:"/course/guiDangForAll",
+        findPerson:"/course/findPerson"
     },
     user:{
         loginKtp:"/user/loginKtp",
