@@ -23,7 +23,9 @@ const url = {
         getGroupCreateClass:"/user/getGroupCreateClass",
         getJoinClass:"/user/getJoinClass",
         getCreateClass:"/user/getCreateClass",
-        getTopClass:"/user/getTopClass"
+        getTopClass:"/user/getTopClass",
+        openClass:"/user/openClass",
+        closeClass:"/user/closeClass",
     },
     homeWork:{
         publishWork:"/homeWork/publishWork",
@@ -34,7 +36,14 @@ const url = {
         getAllStudent:"/homeWork/getAllStudent",
         getById:"/homeWork/getById",
         setGrades:"/homeWork/setGrades",
-        getStuHomework:"/homeWork/getStuHomework"
+        getStuHomework:"/homeWork/getStuHomework",
+        cuijiao:"/homeWork/cuijiao",
+    },
+    message:{
+        readAllMessage:"/message/readAllMessage",
+        readMessage:"/message/readMessage",
+        getAll:"/message/getAll",
+        getNoRead:"/message/getNoRead"
     }
 }
 

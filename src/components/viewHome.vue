@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 <div v-show="active.activeName==='third'">
-                    <ClassBox v-for="c in teachClass" :key="c.code" :sClass="c" :isTop="findTop(c)"
+                    <ClassBox v-for="(c,index) in teachClass" :key="c.index" :sClass="c" :topClass="topClass" :isOpen="c[0].isOpen"
                               v-show="teachClass.length!==0&&scout===''"/>
                     <div class="class-box" v-show="scout!==''">
                         <Class v-for="c in  noGroupTeachClass.filter(data=>scoutClass(data))" :key="c.code" :sClass="c"
@@ -86,13 +86,13 @@
                 </div>
                 <!--                展示加入课堂页面-->
                 <div v-show="active.activeName==='second'">
-                    <ClassBox v-for="c in Class" :key="c.code" :sClass="c" :isTop="findTop(c)"
+                    <ClassBox v-for="(c,index) in Class" :key="index" :sClass="c" :topClass="topClass" :isOpen="c[0].isOpen"
                               v-show="Class.length!==0&&scout===''"/>
                     <div class="class-box" v-show="scout!==''">
                         <Class v-for="c in  noGroupClass.filter(data=>scoutClass(data))" :key="c.code" :sClass="c"
                                :isTop="findTop(c)"/>
                     </div>
-                    <div v-show="Class.length===0">
+                    <div v-show="Class.length===0||(Class.filter(data=>findClass(data).length===0)&&scout!=='')">
                         <NoData/>
                     </div>
                 </div>
@@ -160,12 +160,12 @@
                 <el-dialog :visible.sync="guiDang" class="guidang-dialog" width="884px" :close-on-click-modal="false" title="归档管理" top="7vh">
                     <div class="file-header flex-between">
                         <el-tabs class="left" v-model="active.guiDangActiveName" @tab-click="guiDangTabClick"  v-show="isTeacher">
-                            <el-tab-pane :label="'我教的('+countGuiDang(guiDangCreateClass)+')'" name="first"></el-tab-pane>
-                            <el-tab-pane :label="'我学的('+countGuiDang(guiDangJoinClass)+')'" name="second"></el-tab-pane>
+                            <el-tab-pane :label="'我教的('+countGuiDang(guiDangCreateClass2)+')'" name="first"></el-tab-pane>
+                            <el-tab-pane :label="'我学的('+countGuiDang(guiDangJoinClass2)+')'" name="second"></el-tab-pane>
                             <el-tab-pane label="我协助的(0)" name="3"></el-tab-pane>
                         </el-tabs>
                         <el-tabs class="left" v-model="active.guiDangActiveName" @tab-click="guiDangTabClick" v-show="!isTeacher">
-                            <el-tab-pane :label="'我学的('+countGuiDang(guiDangJoinClass)+')'" name="second"></el-tab-pane>
+                            <el-tab-pane :label="'我学的('+countGuiDang(guiDangJoinClass2)+')'" name="second"></el-tab-pane>
                             <el-tab-pane label="我协助的(0)" name="3"></el-tab-pane>
                         </el-tabs>
                         <div class="flex-between">
@@ -179,16 +179,17 @@
                     </div>
                     <div class="file-box flex-between" v-show="active.guiDangActiveName==='first'">
                         <div class="semester">
-                            <p class="item" v-for="(item,index) in guiDangCreateClass" :key="index" :class="{
+                            <p class="item" v-for="(item,index) in guiDangCreateClass2" :key="index" :class="{
                             active : index === guiDangIndex
                         }" @click="guiDangIndex = index">
                                 {{item[0].startTime}}-{{item[0].endTime}}&nbsp;{{item[0].season===1?'第一学期':'第二学期'}}
                             </p>
                         </div>
                         <div class="list-box">
-                            <gui-dang-class v-for="item in guiDangCreateClass[guiDangIndex]" :key="item.code" :sClass="item" :type="'create'">
+                            <gui-dang-class v-for="item in guiDangCreateClass2[guiDangIndex]"
+                                            :key="item.code" :sClass="item" :type="'create'">
                             </gui-dang-class>
-                            <div class="component-no_data" v-show="guiDangCreateClass.length===0">
+                            <div class="component-no_data" v-show="guiDangCreateClass2.length===0">
                                 <div class="img-box">
                                     <img src="../assets/empty.png" alt="" class="no-data">
                                 </div>
@@ -198,16 +199,17 @@
                     </div>
                     <div class="file-box flex-between" v-show="active.guiDangActiveName==='second'">
                         <div class="semester">
-                            <p class="item" v-for="(item,index) in guiDangJoinClass" :key="index" :class="{
+                            <p class="item" v-for="(item,index) in guiDangJoinClass2" :key="index" :class="{
                             active:index===guiDangIndex
                         }" @click="guiDangIndex = index">
                                 {{index}}-{{item[0].startTime}}-{{item[0].endTime}}&nbsp;{{item[0].season===1?'第一学期':'第二学期'}}
                             </p>
                         </div>
                         <div class="list-box">
-                            <gui-dang-class v-for="(item,index) in guiDangJoinClass[guiDangIndex]" :ke="item.code" :sClass="item" :type="'join'">
+                            <gui-dang-class v-for="(item,index) in  guiDangJoinClass2[guiDangIndex]"
+                                            :ke="item.code" :sClass="item" :type="'join'">
                             </gui-dang-class>
-                            <div class="component-no_data" v-show="guiDangJoinClass.length===0">
+                            <div class="component-no_data" v-show="guiDangJoinClass2.length===0">
                                 <div class="img-box">
                                     <img src="../assets/empty.png" alt="" class="no-data">
                                 </div>
@@ -252,6 +254,12 @@ export default {
     components: {GuiDangClass, NoData, Class, ClassBox},
     computed: {
         ...mapState(['isTeacher']),
+        guiDangCreateClass2(){
+            return this.scoutGuiDang(this.guiDangCreateClass)
+        },
+        guiDangJoinClass2(){
+            return this.scoutGuiDang(this.guiDangJoinClass)
+        }
     },
     data() {
         return {
@@ -312,7 +320,6 @@ export default {
             ],
             //     归档
             guiDang: false,
-            // (this.isTeacher?'first':'second')
             guiDangJoinClass:[],
             guiDangCreateClass:[],
             guiDangScout:"",
@@ -334,7 +341,7 @@ export default {
         findTop(item){
             for(let i = 0;i<this.topClass.length;i++){
                 if(this.topClass[i].code===item.code){
-                    console.log("truehhhh")
+                    console.log("hhhhhtrue")
                     return true
                 }
             }
@@ -363,6 +370,7 @@ export default {
         guiDangTabClick(tab){
             sessionStorage.setItem("guiDangTab",tab.name)
             this.guiDangIndex = 0;
+            this.guiDangScout = "";
         },
         countGuiDang(arr){
             let cnt = 0;
@@ -373,7 +381,25 @@ export default {
         },
         //搜索
         scoutClass(data) {
-            return !!(data.ownerName.includes(this.scout) || data.name.includes(this.scout) || data.code.includes(this.scout));
+            return !!(data.ownerName.includes(this.scout)
+                || data.name.includes(this.scout)
+                || data.code.includes(this.scout));
+        },
+        // 查找满足条件的归档课程
+        scoutGuiDangClass(data){
+            return !!(data.ownerName.includes(this.guiDangScout)
+                || data.name.includes(this.guiDangScout)
+                || data.code.includes(this.guiDangScout));
+        },
+        scoutGuiDang(item){
+            let ans = [];
+            for(let i = 0;i<item.length;i++){
+                let t = item[i].filter(data=>!this.guiDangScout||this.scoutGuiDangClass(data));
+                if(t.length!==0){
+                    ans.push(t)
+                }
+            }
+            return ans;
         },
         handleClick(tab, event) {
             this.scout = "";
@@ -496,6 +522,8 @@ export default {
                 this.noGroupTeachClass = this.findClass(this.teachClass)
 
                 this.topClass = res3.data.r == null ? [] : res3.data.r;
+                console.log("置顶课程=")
+                console.log(this.topClass)
 
                 this.$store.dispatch("iniRole", this.active);
 
@@ -694,7 +722,9 @@ export default {
     font-weight: bold;
     border-bottom: 1px solid #dadce0;
 }
-
+>>>.el-input__inner {
+    border-radius: 20px;
+}
 >>>.test .el-dialog__footer {
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, .1);
 }

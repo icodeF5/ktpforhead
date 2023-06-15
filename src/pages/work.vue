@@ -387,7 +387,7 @@
                                 <template slot-scope="scope">
                                     <div class="cell">
                                         <el-button v-if="scope.row.annex.work==null" type="text"
-                                                   style="font-size: 16px;color: #4d90fe;">
+                                                   style="font-size: 16px;color: #4d90fe;" @click="cuijiao(scope.row)">
                                             催交
                                         </el-button>
                                         <el-button v-if="scope.row.annex.work!=null" type="text" @click="openNew(scope.row.user.name,scope.row)"
@@ -534,6 +534,22 @@ export default {
         submitWork() {
             this.$refs.upload.submit();
             window.location.reload()
+        },
+        //催交作业s
+        cuijiao(data){
+            postRequest(url.homeWork.cuijiao,{},{
+                type:"教学活动",
+                label:"催交",
+                info:"快交作业！！！！",
+                sendId:sessionStorage.getItem("accountName"),
+                receiveId:data.user.accountName,
+                jumpId:this.homeWorkId,
+            }).then(result=>{
+                this.$message({
+                    type:result.r,
+                    message:result.message
+                })
+            })
         },
         //修改成绩
         giveGrade(data) {
