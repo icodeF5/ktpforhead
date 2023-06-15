@@ -1,16 +1,16 @@
 <template>
     <div class="common-border class-chapter">
         <div class="class-handle">
-            <p class="left" style="cursor: pointer;line-height: 37px" @click="isOpen=!isOpen">
+            <p class="left" style="cursor: pointer;line-height: 37px" @click="changeOpen">
                 {{sClass[0].startTime}}-{{sClass[0].endTime}}&nbsp;{{sClass[0].season===1?'第一学期':'第二学期'}}
             </p>
             <div class="right">
-                <div id="btnBox" @click="isOpen=!isOpen">
-                    <el-button type="text" v-show="!isOpen">
+                <div id="btnBox" @click="changeOpen">
+                    <el-button type="text" v-show="!isOpen2" >
                         <i class="el-icon-caret-bottom"></i>
                         <span>展开</span>
                     </el-button>
-                    <el-button v-show="isOpen" type="text">
+                    <el-button v-show="isOpen2" type="text" >
                         <i class="el-icon-caret-top"></i>
                         <span>收起</span>
                     </el-button>
@@ -19,8 +19,8 @@
         </div>
         <div class="class-box">
             <el-collapse-transition>
-                <div v-show="isOpen">
-                    <Class v-for="c in sClass" :key="c.code" :sClass="c" :isTop="isTop"/>
+                <div v-show="isOpen2">
+                    <Class v-for="c in sClass" :key="c.code" :sClass="c" :isTop="findTop(c)"/>
                 </div>
             </el-collapse-transition>
         </div>
@@ -30,15 +30,60 @@
 <script>
 import Class from "components/class.vue";
 import {mapState} from "vuex";
+import {postRequest} from "network/request";
+import url from "network/url";
+import fa from "element-ui/src/locale/lang/fa";
 export default {
     //sClass是属于同一学期的课程
     //isTeach是判断是否是自己教学的课程
-    props:['sClass','isTop'],
+    props:['sClass','topClass','isOpen'],
     name:"ClassBox",
     components: {Class},
     data(){
         return {
-            isOpen:false,
+            accountName:sessionStorage.getItem("accountName"),
+            isOpen2:this.isOpen,
+        }
+    },
+    methods:{
+        findTop(item){
+            for(let i = 0;i<this.topClass.length;i++){
+                if(this.topClass[i].code===item.code){
+                    return true
+                }
+            }
+            return  false;
+        },
+        changeOpen(){
+            this.isOpen2 = !this.isOpen2
+            if(this.isOpen2){
+                this.open()
+            }else{
+                this.close()
+            }
+
+        },
+        open(){
+            postRequest(url.user.openClass,{
+                accountName:this.accountName,
+                type:this.sClass[0].ownerId===this.accountName?'create':'join'
+            },{
+                startTime:this.sClass[0].startTime,
+                endTime:this.sClass[0].endTime,
+                season:this.sClass[0].season
+            }).then(result=>{
+            })
+        },
+        close(){
+            postRequest(url.user.closeClass,{
+                accountName:this.accountName,
+                type:this.sClass[0].ownerId===this.accountName?'create':'join'
+            },{
+                startTime:this.sClass[0].startTime,
+                endTime:this.sClass[0].endTime,
+                season:this.sClass[0].season
+            }).then(result=>{
+            })
         }
     },
     mounted() {

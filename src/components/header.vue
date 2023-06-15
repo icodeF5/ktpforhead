@@ -7,7 +7,43 @@
             </div>
             <div class="header-right">
                 <i class="el-icon-document renwu-icon"  @click="show('任务列表')"></i>
-                <i class="el-icon-bell renwu-icon"  @click="showMessage"></i>
+               <el-badge :value="message.length" class="item2">
+                   <el-popover
+                       placement="bottom"
+                       width="420"
+                       trigger="click"
+                       @show="showMessage">
+                       <div class="component-notice">
+                           <el-tabs v-model="messageActive" @tab-click="messageHandleClick">
+                               <el-tab-pane label="全部活动" name="1">
+                                   <MiniMessage v-for="item in message" :key="message.id" :message="item"></MiniMessage>
+                                    <div class="text-center" v-show="message.length===0">暂无数据</div>
+                               </el-tab-pane>
+                               <el-tab-pane label="教学活动" name="2">
+                                   <MiniMessage v-for="item in message" :key="message.id" :message="item"></MiniMessage>
+                                    <div class="text-center" v-show="message.length===0">暂无数据</div>
+                               </el-tab-pane>
+                               <el-tab-pane label="教务通知" name="3">
+                                   <div class="text-center">暂无数据</div>
+                               </el-tab-pane>
+                               <el-tab-pane label="系统通知" name="4">
+                                   <div class="text-center">暂无数据</div>
+                               </el-tab-pane>
+                           </el-tabs>
+                           <div class="handle flex-between">
+                               <div class="btn" @click="readAll">
+                                   <el-icon class="el-icon-check"></el-icon>
+                                   一键标记为已读
+                               </div>
+                               <div class="btn" @click="checkAll">
+                                   <el-icon class="el-icon-view"></el-icon>
+                                   查看全部
+                               </div>
+                           </div>
+                       </div>
+                       <i class="el-icon-bell renwu-icon" slot="reference"></i>
+                   </el-popover>
+               </el-badge>
                 <el-dropdown @command="handleCommand">
                     <div class="userinfo">
                         <img alt="" src="../assets/icon-student.png" class="avatar">
@@ -34,7 +70,43 @@
             </div>
             <div class="header-right">
                 <i class="el-icon-document renwu-icon" @click="show('任务列表')"></i>
-                <i class="el-icon-bell renwu-icon"  @click="showMessage"></i>
+                <el-badge :value="message.length" class="item2">
+                    <el-popover
+                        placement="bottom"
+                        width="420"
+                        trigger="click"
+                        @show="showMessage">
+                        <div class="component-notice">
+                            <el-tabs v-model="messageActive" @tab-click="messageHandleClick">
+                                <el-tab-pane label="全部活动" name="1">
+                                    <MiniMessage v-for="item in message" :key="message.id" :message="item"></MiniMessage>
+                                    <div class="text-center" v-show="message.length===0">暂无数据</div>
+                                </el-tab-pane>
+                                <el-tab-pane label="教学活动" name="2">
+                                    <MiniMessage v-for="item in message" :key="message.id" :message="item"></MiniMessage>
+                                    <div class="text-center" v-show="message.length===0">暂无数据</div>
+                                </el-tab-pane>
+                                <el-tab-pane label="教务通知" name="3">
+                                    <div class="text-center">暂无数据</div>
+                                </el-tab-pane>
+                                <el-tab-pane label="系统通知" name="4">
+                                    <div class="text-center">暂无数据</div>
+                                </el-tab-pane>
+                            </el-tabs>
+                            <div class="handle flex-between">
+                                <div class="btn" @click="readAll">
+                                    <el-icon class="el-icon-check"></el-icon>
+                                    一键标记为已读
+                                </div>
+                                <div class="btn" @click="checkAll">
+                                    <el-icon class="el-icon-view"></el-icon>
+                                    查看全部
+                                </div>
+                            </div>
+                        </div>
+                        <i class="el-icon-bell renwu-icon" slot="reference"></i>
+                    </el-popover>
+                </el-badge>
                 <el-dropdown @command="handleCommand">
                     <div class="userinfo">
                         <img alt="" src="../assets/icon-student.png" class="avatar">
@@ -80,16 +152,22 @@ import MiniClass from "components/miniClass.vue";
 import axios from "axios";
 import he from "element-ui/src/locale/lang/he";
 import fa from "element-ui/src/locale/lang/fa";
+import {getRequest} from "network/request";
+import url from "network/url";
+import MiniMessage from "components/notification/miniMessage.vue";
 
 export default {
     name: "Header",
-    components: {MiniClass},
+    components: {MiniMessage, MiniClass},
     props: ['heads'],
     data() {
         return {
             drawer: false,
             direction: 'ltr',
             activeNames: [],
+            //信息active
+            messageActive:"1",
+            message:[],
             //作业
             homeWorkId:"",
             //是否是通过提交按钮进入
@@ -106,6 +184,19 @@ export default {
         ...mapState(['isTeacher','showClass']),
     },
     methods: {
+        //消息tab
+        messageHandleClick(val){
+            console.log(val)
+        },
+        //已读所有消息
+        readAll(){
+            this.$store.dispatch("readAll")
+            this.message = []
+        },
+        //查看所有消息
+        checkAll(){
+           this.show("通知")
+        },
         toMain() {
             this.drawer = false;
             this.$bus.$emit("reStart")//home
@@ -143,7 +234,7 @@ export default {
 
         },
         showMessage() {
-
+            console.log("展示信息")
         },
         show(value) {
             if(this.heads[this.heads.length-1]===value){
@@ -183,6 +274,10 @@ export default {
                     query:{
                         showClassCode:this.showClass.code,
                     }
+                })
+            }else if(value==='通知'){
+                this.$router.push({
+                    path:"/main/notification"
                 })
             }
         },
@@ -240,11 +335,45 @@ export default {
         this.$bus.$on("show", this.show);
         this.$bus.$on("setHomeWork", this.setHomeWork);
         this.iniALL();
+        getRequest(url.message.getNoRead,{
+            accountName:sessionStorage.getItem("accountName")
+        }).then(result=>{
+            console.log(result.r)
+            this.message = result.r
+        })
     },
     watch: {},
 }
 </script>
 <style scoped>
+.item2{
+    margin-right: 5px;
+}
+>>>.el-badge__content.is-fixed {
+    position: absolute;
+    top: 6px;
+    right: 16px;
+    transform: translateY(-50%) translateX(100%);
+}
+>>>.el-tabs__nav-wrap::after {
+    position: static !important;
+}
+.component-notice {
+    padding: 0 24px;
+}
+.component-notice .handle {
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    color: #4285f4;
+    line-height: 20px;
+}
+.component-notice .handle .btn {
+    cursor: pointer;
+    width: 50%;
+    height: 50px;
+    line-height: 50px;
+}
 .component-header {
     height: 64px;
     width: 100%;

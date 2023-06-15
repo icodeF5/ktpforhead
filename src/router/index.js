@@ -6,6 +6,7 @@ import ClassDetail from "@/pages/classDetail";
 import ViewHome from "components/viewHome.vue";
 import Task from "@/pages/Task.vue";
 import Work from "@/pages/work.vue";
+import Notification from "@/pages/Notification.vue";
 import ClassMember from "@/pages/ClassMember.vue";
 
 
@@ -72,6 +73,10 @@ const router = new VueRouter({
                             showClassCode:$route.query.showClassCode,
                         }
                     }
+                },
+                {
+                    path:"notification",
+                    component:Notification,
                 }
             ]
         }

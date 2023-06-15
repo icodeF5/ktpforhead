@@ -23,7 +23,8 @@ export default new Vuex.Store({
                 accountName:sessionStorage.getItem("accountName")
             }).then(result=>{
                 context.state.isTeacher = result.r;
-                value.activeName = result.r?'third':"second";
+                let classTab = sessionStorage.getItem("classTab");
+                value.activeName = classTab==null?result.r?'third':"second":classTab;
                 value.guiDangActiveName = result.r?'first':'second';
             })
         },
@@ -32,6 +33,16 @@ export default new Vuex.Store({
                 code:value
             }).then(result=>{
                 context.state.showClass = result.r
+            })
+        },
+        readAll(context,value){
+            getRequest(url.message.readAllMessage,{
+                accountName:sessionStorage.getItem("accountName"),
+            }).then(result=>{
+                this.$message({
+                    type:result.r,
+                    message:result.message,
+                })
             })
         }
     },

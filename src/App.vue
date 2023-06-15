@@ -17,7 +17,7 @@ export default {
 </script>
 <style>
 body{
-    background: rgb(248, 249, 250) no-repeat;
+
 }
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -51,12 +51,14 @@ li, menu, nav, ol, p, section, select, table, tbody, td, textarea, th, tr, ul, v
     /*zoom: 1.005;*/
     box-sizing: border-box;
 }
-
 .flex-between {
 
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+.text-center {
+    text-align: center;
 }
 .font-color--main {
     color: #4285f4;
