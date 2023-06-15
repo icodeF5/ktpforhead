@@ -11,7 +11,7 @@
                 <div class="right-content">
                     <h2 class="title">账号登录</h2>
                     <div class="login-tab">
-                        <el-form ref="user" :model="user" :rules="rulesForIn">
+                        <el-form ref="user" :model="user" :rules="rulesForIn" @submit.native.prevent>
                             <el-form-item prop="username">
                                 <el-input placeholder="请输入账号" v-model="user.username"></el-input>
                             </el-form-item>
