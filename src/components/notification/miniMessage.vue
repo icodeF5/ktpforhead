@@ -1,6 +1,6 @@
 
 <template>
-    <div class="item red-circle">
+    <div class="item red-circle" @click="jump">
         <div class="top">
             <span class="font-color">【{{message.type}}】</span>
             <span>{{message.info}}</span>
@@ -12,6 +12,9 @@
     </div>
 </template>
 <script>
+import {getRequest} from "network/request";
+import url from "network/url";
+
 export default {
     name:"MiniMessage",
     props:['message'],
@@ -20,6 +23,19 @@ export default {
 
         }
     },
+    methods:{
+        jump(){
+            if(this.message.type==='教学活动'){
+                getRequest(url.homeWork.getById,{
+                    workId:this.message.jumpId
+                }).then(result=>{
+                    console.log(result.r.code)
+                    this.$bus.$emit('setHomeWork',this.message.jumpId,false,false,result.r.code)
+                    this.$bus.$emit('show','作业详细')
+                })
+            }
+        }
+    }
 }
 </script>
 <style scoped>

@@ -8,15 +8,19 @@
 import Header from "components/header";
 import ViewHome from "components/viewHome";
 import {mapState} from "vuex";
+import Message from "components/notification/Message.vue";
 
 export default {
     name: "Home",
     data() {
         return {
-            heads: JSON.parse(sessionStorage.getItem('heads'))
+            heads: JSON.parse(sessionStorage.getItem('heads')),
+            emailDialog:false,
+            message:[],
         }
     },
     components: {
+        Message,
         ViewHome,
         Header,
     },
@@ -55,8 +59,10 @@ export default {
             }
             return false;
         },
-
         headsPush(value) {
+            if(value==='通知'||value==='课程内容'||value==='任务列表'){
+                this.heads.splice(0,this.heads.length)
+            }
             this.heads.push(value)
             sessionStorage.setItem('heads', JSON.stringify(this.heads))
         },
@@ -70,7 +76,7 @@ export default {
         }
 
     },
-    mounted() {
+    created() {
         this.$bus.$on("toClassDetail", this.toClassDetail);
         this.$bus.$on("headsPush",this.headsPush);
         this.$bus.$on("headsSplice",this.headsSplice);
@@ -84,5 +90,5 @@ export default {
     }
 }
 </script>
-<style>
+<style scoped>
 </style>

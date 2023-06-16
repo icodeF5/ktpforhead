@@ -20,7 +20,7 @@
             <span class="class">{{message.comeName}}</span>
             <span class="end-time">{{message.time}}</span>
         </div>
-        <div class="right-btnbox" v-show="!message.isRead">
+        <div class="right-btnbox" v-show="!message.isRead" @click.stop="ignore">
             <div class="btn">
                 忽略
             </div>
@@ -45,11 +45,22 @@ export default {
                 getRequest(url.homeWork.getById,{
                     workId:this.message.jumpId
                 }).then(result=>{
-                    this.$store.dispatch('setShowClass',result.r.code)
-                    this.$bus.$emit('setHomeWork',this.message.jumpId,false,false)
+                    console.log(result.r.code)
+                    this.$bus.$emit('setHomeWork',this.message.jumpId,false,false,result.r.code)
                     this.$bus.$emit('show','作业详细')
                 })
             }
+        },
+        ignore(){
+            getRequest(url.message.readMessage,{
+                messageId:this.message.id
+            }).then(result=>{
+                this.message.isRead = true
+                this.$message({
+                    type:result.r,
+                    message:result.message
+                })
+            })
         }
     }
 }

@@ -39,10 +39,6 @@ export default new Vuex.Store({
             getRequest(url.message.readAllMessage,{
                 accountName:sessionStorage.getItem("accountName"),
             }).then(result=>{
-                this.$message({
-                    type:result.r,
-                    message:result.message,
-                })
             })
         }
     },

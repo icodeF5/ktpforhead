@@ -43,7 +43,7 @@
                         <el-dropdown-item command="a">编辑</el-dropdown-item>
                         <el-dropdown-item command="b">移动到章节</el-dropdown-item>
                         <el-dropdown-item command="c">保存到备课区</el-dropdown-item>
-                        <el-dropdown-item command="d">删除</el-dropdown-item>
+                        <el-dropdown-item command="d" @click.native="delete2">删除</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
@@ -52,6 +52,8 @@
 </template>
 <script>
 import axios from "axios";
+import {getRequest} from "network/request";
+import url from "network/url";
 
 export default {
     name: "HomeWork",
@@ -76,6 +78,28 @@ export default {
             this.$bus.$emit("setHomeWork", this.work.id,false,this.isOwner)//传给header
             this.$bus.$emit("show", '作业详细')//传给header
 
+        },
+        delete2(){
+            this.$confirm('是否删除该作业？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                getRequest(url.homeWork.delete,{
+                    id:this.work.id
+                }).then(result=>{
+                    this.$message({
+                        type: result.r,
+                        message: result.message
+                    });
+                })
+                this.$bus.$emit('deleteHomework',this.work)
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            });
         },
         cm(command){
 

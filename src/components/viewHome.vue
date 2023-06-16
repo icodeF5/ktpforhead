@@ -156,6 +156,29 @@
                     <el-button type="primary" @click.native="creatClass">确 定</el-button>
                 </div>
             </el-dialog>
+            <el-dialog :visible.sync="emailDialog" width="50%">
+                <h2 slot="title" class="flex-between">
+                    <span class="d-name">
+                        <span class="font-color--main">{{message.length}}</span>
+                        条未读信息
+                    </span>
+                    <el-icon class="el-icon-close d-close"></el-icon>
+                </h2>
+                <div class="noread-box">
+                    <Message v-for="item in message" :key="item.id" :message="item">
+                    </Message>
+                </div>
+                <div class="dialog-footer" slot="footer">
+                    <div class="btn" @click="readAll">
+                        <el-icon class="el-icon-check"></el-icon>
+                        一键标位已读
+                    </div>
+                    <div class="btn" @click="checkAll">
+                        <el-icon class="el-icon-view"></el-icon>
+                        查看全部
+                    </div>
+                </div>
+            </el-dialog>
             <div class="test">
                 <el-dialog :visible.sync="guiDang" class="guidang-dialog" width="884px" :close-on-click-modal="false" title="归档管理" top="7vh">
                     <div class="file-header flex-between">
@@ -248,10 +271,11 @@ import da from "element-ui/src/locale/lang/da";
 import {getRequest, postRequest} from "network/request";
 import url from "network/url";
 import GuiDangClass from "components/guiDangClass.vue";
+import Message from "components/notification/Message.vue";
 
 export default {
     name: "ViewHome",
-    components: {GuiDangClass, NoData, Class, ClassBox},
+    components: {Message, GuiDangClass, NoData, Class, ClassBox},
     computed: {
         ...mapState(['isTeacher']),
         guiDangCreateClass2(){
@@ -324,6 +348,9 @@ export default {
             guiDangCreateClass:[],
             guiDangScout:"",
             guiDangIndex:0,
+            //通知
+            emailDialog:false,
+            message:[],
         }
     },
     methods: {
@@ -341,11 +368,29 @@ export default {
         findTop(item){
             for(let i = 0;i<this.topClass.length;i++){
                 if(this.topClass[i].code===item.code){
-                    console.log("hhhhhtrue")
                     return true
                 }
             }
             return  false;
+        },
+        // 控制消息弹窗
+        setMessage(message){
+            console.log("进入设置消息弹框")
+            this.message = message
+            this.emailDialog = message.length!==0;
+            console.log(this.message)
+            console.log(this.emailDialog)
+        },
+        // 已读全部消息
+        readAll(){
+            this.$store.dispatch('readAll')
+            for(let i = 0;i<this.message.length;i++){
+                this.message.pop()
+            }
+        },
+        // 查看全部消息
+        checkAll(){
+            this.$bus.$emit("show",'通知')
         },
         // 归档管理
         guidang() {
@@ -705,18 +750,20 @@ export default {
             console.log('重新渲染')
         }
     },
-    mounted() {
+    created() {
         this.$bus.$on("setTop", this.setTop);//给class组件用
         this.$bus.$on("deleteTop", this.deleteTop);//给class组件用
         this.$bus.$on('noGuiDang',this.noGuiDang)//给guiDangClass组件用
         this.$bus.$on('guiDang',this.guiDangM)//给class组件使用。
+        this.$bus.$on('setMessage',this.setMessage)//给header使用
+    },
+    mounted() {
         this.iniALL();
-        console.log(this.isTeacher)
     }
 }
 </script>
 <style scoped>
->>>.test .el-dialog__header {
+>>>.el-dialog__header {
     padding: 20px 20px 10px;
     text-align: left;
     font-weight: bold;
@@ -725,7 +772,7 @@ export default {
 >>>.el-input__inner {
     border-radius: 20px;
 }
->>>.test .el-dialog__footer {
+>>> .el-dialog__footer {
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, .1);
 }
 
@@ -758,6 +805,49 @@ export default {
     font-weight: 500;
     //color: #303133;
     position: relative;
+}
+.d-name {
+    font-size: 16px;
+    color: #3c4043;
+    font-weight: 700;
+}
+.d-close {
+    cursor: pointer;
+    font-family: font_family!important;
+    font-size: 24px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.dialog-footer{
+    font-size: 14px;
+    text-align: center;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+}
+.dialog-footer .btn {
+    margin-left: 12px;
+    border: 1px solid #dadce0;
+    color: #3c4043;
+    border-radius: 4px;
+    width: 155px;
+    height: 36px;
+    cursor: pointer;
+    line-height: 34px;
+}
+.dialog-footer .btn:last-child {
+    border: 1px solid #4285f4;
+    background: #4285f4;
+    color: #fff;
+}
+.noread-box {
+    height: 400px;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+.noread-box::-webkit-scrollbar{
+    display: none;
 }
  .file-box {
     align-items: normal;

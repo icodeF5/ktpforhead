@@ -9,6 +9,7 @@
                         item:true,
                     }" @click="changeIndex(index)">
                         {{item}}
+                        <span class="tab-info" v-show="index===1&&noRead!==0">{{noRead}}</span>
                     </li>
                 </ul>
                 <div class="font-color--main font12 common_pointer" @click="readAll">
@@ -26,7 +27,7 @@
                 layout="prev, pager, next"
                 :total="message.length">
             </el-pagination>
-            <NoData v-show="message===0||(checkIndex!==0&&checkIndex!==1)"></NoData>
+            <NoData v-show="message.length===0||(checkIndex!==0&&checkIndex!==1)"></NoData>
         </div>
     </div>
 </template>
@@ -52,7 +53,10 @@ export default {
             this.checkIndex = index
         },
         readAll(){
-
+            this.$store.dispatch('readAll')
+            for(let i = 0;i<this.message.length&&!this.message[i].isRead;i++){
+                this.message[i].isRead = true;
+            }
         },
         iniAll(){
             getRequest(url.message.getAll,{
@@ -60,7 +64,12 @@ export default {
             }).then(result=>{
                 this.message = result.r
             })
-        }
+        },
+    },
+    computed:{
+      noRead(){
+          return this.message.filter(data=> !data.isRead).length
+      }
     },
     mounted() {
         this.iniAll()
@@ -121,5 +130,22 @@ export default {
     -ms-user-select: none;
     user-select: none;
     cursor: pointer;
+}
+.view-notification .todo-content .tabs-box .tabs .item .tab-info {
+    position: absolute;
+    right: -14px;
+    top: -4px;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: #eb5050;
+    border-radius: 7px;
+    font-size: 12px;
+    font-family: PingFangSC,PingFangSC-Semibold;
+    font-weight: 600;
+    text-align: center;
+    color: #fff;
+    line-height: 18px;
+    transform: scale(.83);
 }
 </style>

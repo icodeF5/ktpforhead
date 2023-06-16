@@ -1,6 +1,6 @@
 
 <template>
-    <div class="item flex-between" >
+    <div class="item flex-between" @click="jump">
         <div class="left" :style="{
             'background-image':'url('+url+')'
         }" @click="toClassDetail">

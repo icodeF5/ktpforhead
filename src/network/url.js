@@ -39,6 +39,7 @@ const url = {
         setGrades:"/homeWork/setGrades",
         getStuHomework:"/homeWork/getStuHomework",
         cuijiao:"/homeWork/cuijiao",
+        delete:"/homeWork/delete",
     },
     message:{
         readAllMessage:"/message/readAllMessage",

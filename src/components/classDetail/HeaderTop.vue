@@ -303,9 +303,20 @@ export default {
         showClassMember(){
             this.$bus.$emit("show",'成员')
         },
+        //删除作业
+        deleteHomework(work){
+            for(let i =0;i<this.homeWork.length;i++){
+                if(work.id===this.homeWork[i].id){
+                    this.homeWork.splice(i,1)
+                    break;
+                }
+            }
+        },
         createWork() {
             this.dialog = false;
-            postRequest(url.homeWork.publishWork, {}, {
+            postRequest(url.homeWork.publishWork, {
+                accountName:sessionStorage.getItem("accountName")
+            }, {
                 title: this.newWork.title,
                 allScore: Number.parseFloat(this.newWork.allScore),
                 des: this.newWork.des,
@@ -336,6 +347,7 @@ export default {
         }
     },
     mounted() {
+        this.$bus.$on("deleteHomework",this.deleteHomework)//给HomeWork组件使用
         this.iniAll()
     }
 }

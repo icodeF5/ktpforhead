@@ -664,6 +664,8 @@ export default {
             getRequest(url.homeWork.status, {
                 id: this.homeWorkId
             }).then(result => {
+                console.log("作业状态----")
+                console.log(result.r)
                 this.status = result.r
                 this.isShow = true
             })

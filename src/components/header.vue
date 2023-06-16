@@ -174,6 +174,8 @@ export default {
             submit:false,
             //是否是自己发布的作业
             isOwner:false,
+            // 通知跳转的code
+            code:"",
 
             Class2:[],
             teachClass2:[],
@@ -196,6 +198,12 @@ export default {
         //查看所有消息
         checkAll(){
            this.show("通知")
+        },
+        //设置弹窗
+        setMessage(){
+            console.log("哈哈哈调用设置消息的全局事件总线")
+            console.log(this.message)
+            this.$bus.$emit("setMessage",this.message);
         },
         toMain() {
             this.drawer = false;
@@ -263,7 +271,7 @@ export default {
                     path: "/main/homeWork",
                     query: {
                         homeWorkId: this.homeWorkId,
-                        showClassCode:this.showClass.code,
+                        showClassCode:this.showClass.code||this.code,
                         submit:this.submit,
                         isOwner:this.isOwner
                     }
@@ -295,10 +303,11 @@ export default {
         changeDrawer() {
             this.drawer = false;
         },
-        setHomeWork(value,submit,isOwner) {
+        setHomeWork(value,submit,isOwner,code) {
             this.homeWorkId = value
             this.submit = submit
             this.isOwner = isOwner
+            this.code = code
         },
         iniALL(){
             axios.all([
@@ -338,8 +347,8 @@ export default {
         getRequest(url.message.getNoRead,{
             accountName:sessionStorage.getItem("accountName")
         }).then(result=>{
-            console.log(result.r)
             this.message = result.r
+            this.setMessage()
         })
     },
     watch: {},
@@ -358,6 +367,7 @@ export default {
 >>>.el-tabs__nav-wrap::after {
     position: static !important;
 }
+
 .component-notice {
     padding: 0 24px;
 }

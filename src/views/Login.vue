@@ -240,6 +240,7 @@ export default {
             }
         },
       keyDownL(e) {
+          console.log("jinru")
         // 回车则执行登录方法 enter键的ASCII是13
         if (e.keyCode === 13) {
           this.login(); // 定义的登录方法
