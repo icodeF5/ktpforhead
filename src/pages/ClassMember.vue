@@ -4,13 +4,16 @@ import Class from "components/class.vue";
 import {getRequest} from "network/request";
 import url from "network/url";
 import NoData from "components/NoData.vue";
+import {mapState} from "vuex";
 
 export default {
   name: "ClassMember",
-  components: {NoData, Class},
+  components: {NoData, Class,},
+
   props: ['showClassCode'],
   data() {
     return {
+      checked: true,
       input: '',
       activeName: 'first',
       isOpen: false,
@@ -40,6 +43,7 @@ export default {
     handleClick(tab, event) {
       if (tab.name === 'second'){
         this.showGroup()
+        this.input = ''
       }else if (this.teaFlag === '1') {
         this.showTeacher()
       } else {
@@ -141,6 +145,10 @@ export default {
       this.showStudentTable = false
       this.showSearchTable = false
       this.showGroupTable = true
+    },
+
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
     }
   },
 
@@ -149,136 +157,140 @@ export default {
     this.findTeacher()
   },
 
+  computed: {
+    ...mapState(['isTeacher'])
+  }
+
 }
 </script>
 
-<template>
+<template >
+  <div >
+    <div v-show="!isTeacher">
+      <div class="view-member" >
+        <div class="viewHeader">
+          <div class="le"></div>
+          <div class="ri" v-show="!showGroupTable">
+            <div class="session_search">
+              <el-input
+                  v-model="input"
+                  @input="inputChange"
+                  clearable
+                  placeholder="搜索姓名、学号"
+                  suffix-icon="el-icon-search">
+              </el-input>
 
-  <div class="view-member">
-    <div class="viewHeader">
-      <div class="le"></div>
-      <div class="ri" v-show="!showGroupTable">
-        <div class="session_search">
-          <el-input
-              v-model="input"
-              @input="inputChange"
-              clearable
-              placeholder="搜索姓名、学号"
-              suffix-icon="el-icon-search">
-          </el-input>
-
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="viewCon">
-      <div class="le" style="position: absolute; top: unset;">
-        <el-tabs v-model="activeName" @tab-click="handleClick" stretch style="height: 500px;">
-          <el-tab-pane label="全部成员" style="font-size: 17px;" name="first">
-            <div class="list" >
-              <div class="teacher" @click="showTeacher" :class="{
+        <div class="viewCon">
+          <div class="le" style="position: absolute; top: unset;">
+            <el-tabs v-model="activeName" @tab-click="handleClick" stretch style="height: 500px;">
+              <el-tab-pane label="全部成员" style="font-size: 17px;" name="first">
+                <div class="list" >
+                  <div class="teacher" @click="showTeacher" :class="{
                 teacherTeamActive:this.showTeacherTable
               }">教师团队
-              </div>
+                  </div>
 
-              <div class="all_student_item" @click="showStudent" :class="{
+                  <div class="all_student_item" @click="showStudent" :class="{
                      teacherTeamActive:this.showStudentTable
                    }">
                 <span style="cursor: pointer; font-size: 17px; line-height: 40px;">
                   全部学生（{{ tableData.length }}）
                 </span>
-              </div>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="学生分组" name="second" style="font-size: 17px;" >
-              <div class="list" >
+                  </div>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="学生分组" name="second" style="font-size: 17px;" >
+                <div class="list" >
 
-                <div style="display: flex;flex-direction: row;align-items: center;width: 300px" class="teacher"
-                     @click="showActive=!showActive" :class="{
+                  <div style="display: flex;flex-direction: row;align-items: center;width: 300px" class="teacher"
+                       @click="showActive=!showActive" :class="{
                 teacherTeamActive:this.showActive,
 
               }">
-                  <i class="el-icon-caret-right" @click="showActive=true" :class="{ img:this.showActive}"/>
-                  班级固定分组
-                  <el-tag effect="dark" class="classTeam">固定组</el-tag>
-                </div>
-              </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-      <div class="ri">
-        <div class="tab_view">
-          <div class="member-list">
-            <div class="head" v-show="!showGroupTable">
-              <div class="classRom">
-                <div class="title-box flex-align flex-between">
-                  <div class="left">
-                    <span class="name">{{ showTable.name }}</span>
-                    <span style="margin-left: 10px"> 共{{ showTable.data.length }}人 </span>
+                    <i class="el-icon-caret-right" @click="showActive=true" :class="{ img:this.showActive}"/>
+                    班级固定分组
+                    <el-tag effect="dark" class="classTeam">固定组</el-tag>
                   </div>
                 </div>
-              </div>
-            </div>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+          <div class="ri">
             <div class="tab_view">
-              <el-table
-                  :header-cell-style="{background:'rgb(244,244,244)'}"
-                  v-show="showSearchTable"
-                  :data="searchData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
-                  style="width: 100%"
-                  max-height="700px"
-                  :default-sort="{prop: 'userId', order: 'descending'
-                  }"
-              >
-                  <el-table-column
-                      label="全部成员"
-                      sortable
-                      width="180">
-                    <div class="cell" slot-scope="scope">
-                      <div class="avatar-box">
-                        <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
-                        <div>{{scope.row.name}}</div>
+              <div class="member-list">
+                <div class="head" v-show="!showGroupTable">
+                  <div class="classRom">
+                    <div class="title-box flex-align flex-between">
+                      <div class="left">
+                        <span class="name">{{ showTable.name }}</span>
+                        <span style="margin-left: 10px"> 共{{ showTable.data.length }}人 </span>
                       </div>
                     </div>
-                  </el-table-column>
-                <el-table-column
-                    prop="userId"
-                    label="学号"
-                    sortable
-                    width="130">
-                </el-table-column>
-                <el-table-column
-                    prop="accountName"
-                    label="账号"
-                    width="190"
-                >
-                </el-table-column>
+                  </div>
+                </div>
+                <div class="tab_view">
+                  <el-table
+                      :header-cell-style="{background:'rgb(244,244,244)'}"
+                      v-show="showSearchTable"
+                      :data="searchData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
+                      style="width: 100%"
+                      max-height="700px"
+                      :default-sort="{prop: 'userId', order: 'descending'
+                  }"
+                  >
+                    <el-table-column
+                        label="全部成员"
+                        sortable
+                        width="180">
+                      <div class="cell" slot-scope="scope">
+                        <div class="avatar-box">
+                          <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
+                          <div>{{scope.row.name}}</div>
+                        </div>
+                      </div>
+                    </el-table-column>
+                    <el-table-column
+                        prop="userId"
+                        label="学号"
+                        sortable
+                        width="130">
+                    </el-table-column>
+                    <el-table-column
+                        prop="accountName"
+                        label="账号"
+                        width="190"
+                    >
+                    </el-table-column>
 
-                <el-table-column
-                    prop="joinTime"
-                    label="加入时间"
-                    width="180"
-                    sortable
-                >
-                </el-table-column>
+                    <el-table-column
+                        prop="joinTime"
+                        label="加入时间"
+                        width="180"
+                        sortable
+                    >
+                    </el-table-column>
 
-                <el-table-column
-                    width="150">
-                  <div class="cell">
+                    <el-table-column
+                        width="150">
+                      <div class="cell">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
                   </span>
-                  </div>
-                </el-table-column>
-              </el-table>
-              <el-table
-                  v-show="showTeacherTable"
-                  :data="teacherData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
-                  style="width: 100%"
-                  max-height="700px"
-                  :header-cell-style="{background:'rgb(244,244,244)'}"
-                  :default-sort="{prop: 'ownerName', order: 'descending'}"
-              >
+                      </div>
+                    </el-table-column>
+                  </el-table>
+                  <el-table
+                      v-show="showTeacherTable"
+                      :data="teacherData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
+                      style="width: 100%"
+                      max-height="700px"
+                      :header-cell-style="{background:'rgb(244,244,244)'}"
+                      :default-sort="{prop: 'ownerName', order: 'descending'}"
+                  >
 
                     <el-table-column
                         label="全部成员"
@@ -292,183 +304,715 @@ export default {
                       </div>
                     </el-table-column>
 
-                <el-table-column
-                    prop="ownerId"
-                    label="账号"
-                    width="140"
-                >
-                </el-table-column>
+                    <el-table-column
+                        prop="ownerId"
+                        label="账号"
+                        width="140"
+                    >
+                    </el-table-column>
 
-                <el-table-column
-                    label="身份"
-                    width="100"
-                >老师
-                </el-table-column>
+                    <el-table-column
+                        label="身份"
+                        width="100"
+                    >老师
+                    </el-table-column>
 
-                <el-table-column
-                    width="293">
-                  <div class="cell">
+                    <el-table-column
+                        width="293">
+                      <div class="cell">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
                   </span>
-                  </div>
-                </el-table-column>
+                      </div>
+                    </el-table-column>
 
-              </el-table>
-              <el-table
-                  :header-cell-style="{background:'rgb(244,244,244)'}"
-                  v-show="showStudentTable"
-                  :data="tableData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
-                  style="width: 100%"
-                  max-height="700px"
-                  :default-sort="{prop: 'userId', order: 'descending'
+                  </el-table>
+                  <el-table
+                      :header-cell-style="{background:'rgb(244,244,244)'}"
+                      v-show="showStudentTable"
+                      :data="tableData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
+                      style="width: 100%"
+                      max-height="700px"
+                      :default-sort="{prop: 'userId', order: 'descending'
                   }"
-              >
-                <el-table-column
-                    label="全部成员"
-                    sortable
-                    width="180">
-                  <div class="cell" slot-scope="scope">
-                    <div class="avatar-box">
-                      <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
-                      <div>{{scope.row.name}}</div>
-                    </div>
-                  </div>
-                </el-table-column>
-                <el-table-column
-                    prop="userId"
-                    label="学号"
-                    sortable
-                    width="130">
-                </el-table-column>
-                <el-table-column
-                    prop="accountName"
-                    label="账号"
-                    width="190"
-                >
-                </el-table-column>
+                  >
+                    <el-table-column
+                        label="全部成员"
+                        sortable
+                        width="180">
+                      <div class="cell" slot-scope="scope">
+                        <div class="avatar-box">
+                          <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
+                          <div>{{scope.row.name}}</div>
+                        </div>
+                      </div>
+                    </el-table-column>
+                    <el-table-column
+                        prop="userId"
+                        label="学号"
+                        sortable
+                        width="130">
+                    </el-table-column>
+                    <el-table-column
+                        prop="accountName"
+                        label="账号"
+                        width="190"
+                    >
+                    </el-table-column>
 
-                <el-table-column
-                    prop="joinTime"
-                    label="加入时间"
-                    width="180"
-                    sortable
-                >
-                </el-table-column>
+                    <el-table-column
+                        prop="joinTime"
+                        label="加入时间"
+                        width="180"
+                        sortable
+                    >
+                    </el-table-column>
 
-                <el-table-column
-                    width="150">
-                  <div class="cell">
+                    <el-table-column
+                        width="150">
+                      <div class="cell">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
                   </span>
+                      </div>
+                    </el-table-column>
+                  </el-table>
+                  <div class="block" v-show="!showGroupTable">
+                    <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page="pageInfo.currentPage"
+                        :page-sizes="[50, 100, 150, 200]"
+                        :page-size="pageInfo.pageSize"
+                        layout="total, sizes, prev, pager, next"
+                        :total="pageInfo.pageTotal" style="display: flex; justify-content: left">
+                    </el-pagination>
                   </div>
-                </el-table-column>
-              </el-table>
-              <div class="block" v-show="!showGroupTable">
-                <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="pageInfo.currentPage"
-                    :page-sizes="[50, 100, 150, 200]"
-                    :page-size="pageInfo.pageSize"
-                    layout="total, sizes, prev, pager, next"
-                    :total="pageInfo.pageTotal" style="display: flex; justify-content: left">
-                </el-pagination>
+                </div>
+              </div>
+            </div>
+
+            <div class="group_view">
+              <div class="head" v-show="showActive">
+                <div class="classRom">
+                  <span class="name">固定组：班级固定分组</span>
+                  <span class="count" style="display: flex;justify-content: left">共0组，
+                  <span style="display: flex;justify-content: left">未进组人数：{{tableData.length}} </span>
+               </span>
+                </div>
+              </div>
+              <div class="groupSamll" v-show="showActive">
+                <span class="group-title"></span>
+                <div class="add_itemview"></div>
+              </div>
+              <div class="tab_smallview">
+                <el-table
+                    v-show="showGroupTable"
+                    :header-cell-style="{background:'rgb(244,244,244)'}"
+                    style="width: 100%"
+                    max-height="700px"
+                    height="450px"
+                    is-leaf
+                >
+                  <el-table-column
+                      label="全部成员"
+                      width="220">
+                    <div class="cell" slot-scope="scope">
+                      <div class="avatar-box">
+                        <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
+                        <div>{{scope.row.name}}</div>
+                      </div>
+                    </div>
+                  </el-table-column>
+                  <el-table-column
+                      label="学号"
+                      is-leaf
+                      width="240">
+                  </el-table-column>
+                  <el-table-column
+                      label="账号"
+                      width="150"
+                      is-leaf
+                  >
+                  </el-table-column>
+                  <el-table-column
+                      label="身份"
+                      is-leaf
+                      width="100"
+                  >
+                  </el-table-column>
+                  <el-table-column
+                      is-leaf
+                      width="143">
+                    <div class="cell">
+                  <span class="opt-btn mgr-16">
+                    <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
+                    私聊
+                  </span>
+                    </div>
+                  </el-table-column>
+
+
+                  <template slot="empty" >
+                    <NoData />
+                  </template>
+
+                </el-table>
+                <div class="block" v-show="showGroupTable">
+                  <el-pagination
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="pageInfo.currentPage"
+                      :page-sizes="[50, 100, 150, 200]"
+                      :page-size="pageInfo.pageSize"
+                      layout="total, sizes, prev, pager, next"
+                      :total="1" style="display: flex; justify-content: left">
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </div>
         </div>
+    </div>
+    </div>
+      <div v-show="isTeacher">
+        <div class="view-member" >
+          <div class="viewHeader">
+            <div class="le" v-show="!showGroupTable">
+              <span class="importBtn">
+                <i class="el-icon-plus"></i>
+                 导入成员
+              </span>
+              <div class="icont">
+                <i class="el-icon-download"></i>
+                 下载成员
+              </div>
+              <el-dropdown disabled="disabled" class="icont">
+                <span class="el-dropdown-link" aria-haspopup="list" aria-controls="dropdown-menu-2856" role="button" tabindex="0">
+                      退课记录
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item>暂无数据</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
 
-        <div class="group_view">
-          <div class="head" v-show="showActive">
-            <div class="classRom">
-              <span class="name">固定组：班级固定分组</span>
-               <span class="count" style="display: flex;justify-content: left">共0组，
-                  <span style="display: flex;justify-content: left">未进组人数：{{tableData.length}} </span>
-               </span>
+              <el-badge class="icont">
+                <span class="common_pointer font-color--main">报名审核</span>
+              </el-badge>
+            </div>
+            <div class="ri" v-show="!showGroupTable">
+              <div class="item">
+                <el-checkbox v-model="checked" aria-describedby="el-tooltip-3910" tabindex="0" label="人数限制">
+                </el-checkbox>
+              </div>
+              <div class="item">
+                <el-checkbox v-model="checked" aria-describedby="el-tooltip-3910" tabindex="0" label="不允许退课">
+                </el-checkbox>
+              </div>
+              <div class="session_search">
+                <el-input
+                    v-model="input"
+                    @input="inputChange"
+                    clearable
+                    style="margin-left: 30px;width: 220px"
+                    placeholder="搜索姓名、学号"
+                    suffix-icon="el-icon-search">
+                </el-input>
+
+              </div>
             </div>
           </div>
-          <div class="groupSamll" v-show="showActive">
-            <span class="group-title"></span>
-            <div class="add_itemview"></div>
-          </div>
-          <div class="tab_smallview">
-            <el-table
-                v-show="showGroupTable"
-                :header-cell-style="{background:'rgb(244,244,244)'}"
-                style="width: 100%"
-                max-height="700px"
-                height="450px"
-                is-leaf
-            >
-              <el-table-column
-                  label="全部成员"
-                  width="220">
-                <div class="cell" slot-scope="scope">
-                  <div class="avatar-box">
-                    <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
-                    <div>{{scope.row.name}}</div>
+          <div class="viewCon">
+            <div class="le" style="position: absolute; top: unset;">
+              <el-tabs v-model="activeName" @tab-click="handleClick" stretch style="height: 500px;">
+                <el-tab-pane label="全部成员"  name="first">
+                  <div class="list" >
+                    <div class="teacher" @click="showTeacher" :class="{
+                teacherTeamActive:this.showTeacherTable
+              }">教师团队
+                    </div>
+
+                    <div class="all_student_item" @click="showStudent" :class="{
+                     teacherTeamActive:this.showStudentTable
+                   }">
+                <span style="cursor: pointer; font-size: 17px; line-height: 40px;">
+                  全部学生（{{ tableData.length }}）
+                </span>
+                    </div>
                   </div>
-                </div>
-              </el-table-column>
-              <el-table-column
-                  label="学号"
-                  is-leaf
-                  width="240">
-              </el-table-column>
-              <el-table-column
-                  label="账号"
-                  width="150"
-                  is-leaf
-              >
-              </el-table-column>
-              <el-table-column
-                  label="身份"
-                  is-leaf
-                  width="100"
-              >
-              </el-table-column>
-              <el-table-column
-                  is-leaf
-                  width="143">
-                <div class="cell">
+                  <el-button type="button" class="addClass" plain>
+                    添加标签
+                  </el-button>
+                </el-tab-pane>
+                <el-tab-pane label="学生分组" name="second" style="font-size: 17px;" >
+                  <div class="list" >
+                    <div style="display: flex;flex-direction: row;align-items: center;width: 300px" class="teacher"
+                         @click="showActive=!showActive" :class="{
+                teacherTeamActive:this.showActive,
+
+              }">
+                      <i class="el-icon-caret-right" @click="showActive=true" :class="{ img:this.showActive}"/>
+                      班级固定分组
+                      <el-tag effect="dark" class="classTeam">固定组</el-tag>
+                    </div>
+                  </div>
+                  <el-button type="button" class="addClass" plain>
+                    新增分组批次
+                  </el-button>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+            <div class="ri">
+              <div class="tab_view">
+                <div class="member-list">
+                  <div class="head" v-show="!showGroupTable">
+                    <div class="classRom">
+                      <div class="title-box flex-align flex-between" >
+                        <div class="left">
+                          <span class="name">{{ showTable.name }}</span>
+                          <span style="margin-left: 10px"> 共{{ showTable.data.length }}人 </span>
+                        </div>
+                        <div class="rig">
+                          <el-button type="button" class="add">
+                              <span v-show="showTeacherTable">
+                                <i class="el-icon-plus"></i>
+                                添加助教/老师
+                              </span>
+                             <span v-show="showStudentTable">转移标签</span>
+                          </el-button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab_view">
+                    <el-table
+                        :header-cell-style="{background:'rgb(244,244,244)'}"
+                        v-show="showSearchTable"
+                        :data="searchData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
+                        style="width: 100%"
+                        max-height="700px"
+                        :default-sort="{prop: 'userId', order: 'descending'}"
+                    >
+                      <el-table-column
+                          type="selection"
+                          width="50">
+                      </el-table-column>
+
+                      <el-table-column
+                          label="全部成员"
+                          sortable
+                          width="160">
+                        <div class="cell" slot-scope="scope">
+                          <div class="avatar-box">
+                            <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
+                            <div>{{scope.row.name}}</div>
+                          </div>
+                        </div>
+                      </el-table-column>
+                      <el-table-column
+                          prop="userId"
+                          label="学号"
+                          sortable
+                          width="127">
+                      </el-table-column>
+                      <el-table-column
+                          prop="accountName"
+                          label="账号"
+                          width="160"
+                      >
+                      </el-table-column>
+
+                      <el-table-column
+                          prop="joinTime"
+                          label="加入时间"
+                          width="180"
+                          sortable
+                      >
+                      </el-table-column>
+
+                      <el-table-column
+                          width="150">
+                        <div class="cell">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
                   </span>
+                        </div>
+                      </el-table-column>
+                    </el-table>
+                    <el-table
+                        v-show="showTeacherTable"
+                        :data="teacherData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
+                        style="width: 100%"
+                        max-height="700px"
+                        :header-cell-style="{background:'rgb(244,244,244)'}"
+                        :default-sort="{prop: 'ownerName', order: 'descending'}"
+                    >
+                      <el-table-column
+                          type="selection"
+                          width="50">
+                      </el-table-column>
+                      <el-table-column
+                          label="全部成员"
+                          sortable
+                          width="250">
+                        <div class="cell" slot-scope="scope">
+                          <div class="avatar-box">
+                            <img src="../assets/icon-teacher.png" alt="" style="width: 25px; margin-right: 10px">
+                            <div>{{scope.row.ownerName}}</div>
+                          </div>
+                        </div>
+                      </el-table-column>
+
+                      <el-table-column
+                          prop="ownerId"
+                          label="账号"
+                          width="140"
+                      >
+                      </el-table-column>
+
+                      <el-table-column
+                          label="身份"
+                          width="100"
+                      >老师
+                      </el-table-column>
+
+                      <el-table-column
+                          width="293">
+                        <div class="cell">
+                  <span class="opt-btn mgr-16">
+                    <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
+                    私聊
+                  </span>
+                        </div>
+                      </el-table-column>
+
+                    </el-table>
+                    <el-table
+                        :header-cell-style="{background:'rgb(244,244,244)'}"
+                        v-show="showStudentTable"
+                        :data="tableData.slice((pageInfo.currentPage-1)*pageInfo.pageSize,pageInfo.currentPage*pageInfo.pageSize)"
+                        style="width: 100%"
+                        max-height="700px"
+                        :default-sort="{prop: 'userId', order: 'descending'
+                  }"
+                    >
+
+                      <el-table-column
+                          type="selection"
+                          width="50">
+                      </el-table-column>
+                      <el-table-column
+                          label="全部成员"
+                          sortable
+                          width="160">
+                        <div class="cell" slot-scope="scope">
+                          <div class="avatar-box">
+                            <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
+                            <div>{{scope.row.name}}</div>
+                          </div>
+                        </div>
+                      </el-table-column>
+                      <el-table-column
+                          prop="userId"
+                          label="学号"
+                          sortable
+                          width="130">
+                      </el-table-column>
+                      <el-table-column
+                          prop="accountName"
+                          label="账号"
+                          width="170"
+                      >
+                      </el-table-column>
+
+                      <el-table-column
+                          prop="joinTime"
+                          label="加入时间"
+                          width="170"
+                          sortable
+                      >
+                      </el-table-column>
+
+                      <el-table-column
+                          width="150">
+                        <div class="cell">
+                  <span class="opt-btn mgr-16">
+                    <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
+                    私聊
+                  </span>
+                        </div>
+                      </el-table-column>
+                    </el-table>
+                    <div class="block" v-show="!showGroupTable">
+                      <el-pagination
+                          @size-change="handleSizeChange"
+                          @current-change="handleCurrentChange"
+                          :current-page="pageInfo.currentPage"
+                          :page-sizes="[50, 100, 150, 200]"
+                          :page-size="pageInfo.pageSize"
+                          layout="total, sizes, prev, pager, next"
+                          :total="pageInfo.pageTotal" style="display: flex; justify-content: left">
+                      </el-pagination>
+                    </div>
+                  </div>
                 </div>
-              </el-table-column>
+              </div>
+
+              <div class="group_view">
+                <div class="head" v-show="showActive">
+                  <div class="classRom">
+                    <span class="name">固定组：班级固定分组</span>
+                    <span class="count" style="display: flex;justify-content: left">共0组，
+                  <span style="display: flex;justify-content: left">未进组人数：{{tableData.length}} </span>
+               </span>
+                  </div>
+                  <div class="ri_btn">
+                    <div class="icont">
+                      <i class="el-icon-download"></i>
+                      下载小组成员
+                    </div>
+                    <div class="item">
+                      <el-checkbox v-model="checked" aria-describedby="el-tooltip-3910" tabindex="0" label="允许学生选组">
+                      </el-checkbox>
+                    </div>
+                    <span class="group_set">分组设置</span>
+                  </div>
+                </div>
+                <div class="groupSamll" v-show="showActive">
+                  <span class="group-title"></span>
+                  <div class="add_itemview"></div>
+                </div>
+                <div class="tab_smallview">
+                  <el-table
+                      v-show="showGroupTable"
+                      :header-cell-style="{background:'rgb(244,244,244)'}"
+                      style="width: 100%"
+                      max-height="700px"
+                      height="450px"
+                      is-leaf
+                  >
+                    <el-table-column
+                        label="全部成员"
+                        width="220">
+                      <div class="cell" slot-scope="scope">
+                        <div class="avatar-box">
+                          <img src="../assets/icon-student.png" alt="" style="width: 25px; margin-right: 10px">
+                          <div>{{scope.row.name}}</div>
+                        </div>
+                      </div>
+                    </el-table-column>
+                    <el-table-column
+                        label="学号"
+                        is-leaf
+                        width="240">
+                    </el-table-column>
+                    <el-table-column
+                        label="账号"
+                        width="150"
+                        is-leaf
+                    >
+                    </el-table-column>
+                    <el-table-column
+                        label="身份"
+                        is-leaf
+                        width="100"
+                    >
+                    </el-table-column>
+                    <el-table-column
+                        is-leaf
+                        width="143">
+                      <div class="cell">
+                  <span class="opt-btn mgr-16">
+                    <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
+                    私聊
+                  </span>
+                      </div>
+                    </el-table-column>
 
 
-              <template slot="empty" >
-                <NoData />
-              </template>
+                    <template slot="empty" >
+                      <NoData />
+                    </template>
 
-            </el-table>
-            <div class="block" v-show="showGroupTable">
-              <el-pagination
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page="pageInfo.currentPage"
-                  :page-sizes="[50, 100, 150, 200]"
-                  :page-size="pageInfo.pageSize"
-                  layout="total, sizes, prev, pager, next"
-                  :total="1" style="display: flex; justify-content: left">
-              </el-pagination>
+                  </el-table>
+                  <div class="block" v-show="showGroupTable">
+                    <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page="pageInfo.currentPage"
+                        :page-sizes="[50, 100, 150, 200]"
+                        :page-size="pageInfo.pageSize"
+                        layout="total, sizes, prev, pager, next"
+                        :total="1" style="display: flex; justify-content: left">
+                    </el-pagination>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+
+
+</div>
 
 
 </template>
 
 <style scoped>
+
+.group_view .head .ri_btn .group_set {
+  font-size: 14px;
+  cursor: pointer;
+  width: 104px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  background: #4285f4;
+  border-radius: 4px;
+  color: #fff;
+}
+
+>>>.el-checkbox__input.is-checked+.el-checkbox__label {
+  color: #4285f4;
+}
+
+
+.group_view .head .ri_btn .item {
+  margin-right: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.group_view .head .ri_btn .icont i {
+  font-size: 22px;
+  margin-right: 5px;
+}
+
+.group_view .head .ri_btn .icont {
+  display: flex;
+  align-items: center;
+  color: #4285f4;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.group_view .head .ri_btn {
+  display: flex;
+  align-items: center;
+}
+
+.member-list .head .rig .add {
+  width: 140px;
+  height: 36px;
+  text-align: center;
+  border-radius: 4px;
+  background: #4285f4;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.member-list .head .rig {
+  display: flex;
+  align-items: center;
+  color: #4285f4;
+}
+
+::v-deep .el-tabs__content {
+  height: 500px !important;
+  overflow: hidden;
+  position: relative;
+}
+
+
+.view-member .viewCon .addClass {
+  margin-top: 24px;
+  cursor: pointer;
+  display: block;
+  width: 128px;
+  line-height: 36px;
+  height: 36px;
+  text-align: center;
+  margin-left: 60px;
+  padding: 0;
+  color: #4285f4;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #4285f4;
+  margin-bottom: 10px;
+}
+
+.view-member .viewHeader .ri .session_search i {
+  cursor: pointer;
+}
+
+.view-member .viewHeader .ri .session_search input {
+  color: #5f6368;
+  font-size: 12px;
+  outline: none;
+}
+
+
+
+.view-member .viewHeader .ri .item {
+  margin-left: 30px;
+  display: flex;
+}
+
+.common_pointer {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+.font-color--main {
+  color: #4285f4;
+}
+
+.el-dropdown-link {
+  cursor: pointer;
+  color: #4285f4;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
+
+.view-member .viewHeader .le .icont i {
+  font-size: 18px;
+  margin-right: 5px;
+  color: #4285f4;
+}
+
+.view-member .viewHeader .le .icont {
+  color: #4285f4;
+  cursor: pointer;
+  margin-left: 25px;
+  font-size: 14px;
+}
+
+.view-member .viewHeader .le .importBtn i {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.view-member .viewHeader .le .importBtn {
+  width: 120px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px 0 rgba(0,202,144,.3);
+  border-radius: 24px;
+  background: #00ca90;
+  color: #fff;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+}
 
 .data, .component-no_data .img-box {
   padding-bottom: 12px;
@@ -608,11 +1152,6 @@ export default {
   justify-content: space-between;
 }
 
-.viewHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
 .view-member .viewHeader .ri .session_search i {
   cursor: pointer;
