@@ -155,6 +155,7 @@ import fa from "element-ui/src/locale/lang/fa";
 import {getRequest} from "network/request";
 import url from "network/url";
 import MiniMessage from "components/notification/miniMessage.vue";
+import Vue from "vue";
 
 export default {
     name: "Header",
@@ -201,13 +202,19 @@ export default {
         },
         //设置弹窗
         setMessage(){
-            console.log("哈哈哈调用设置消息的全局事件总线")
-            console.log(this.message)
             this.$bus.$emit("setMessage",this.message);
+        },
+        // 忽略信息
+        ignoreMessage(message){
+          for(let i = 0;i<this.message.length;i++){
+              if(this.message[i].id===message.id){
+                  this.message.splice(i,1)
+                  break;
+              }
+          }
         },
         toMain() {
             this.drawer = false;
-            this.$bus.$emit("reStart")//home
             this.$router.push({
                 path: "/main",
             })
@@ -224,6 +231,10 @@ export default {
                 });
                 sessionStorage.removeItem("accountName");
                 sessionStorage.removeItem("heads");
+                sessionStorage.removeItem('classTab');
+                sessionStorage.removeItem('classDetail');
+                sessionStorage.removeItem('tea-tab');
+                sessionStorage.removeItem('heads');
                 this.$router.push({
                     path: "/login",
                 })
@@ -245,17 +256,7 @@ export default {
             console.log("展示信息")
         },
         show(value) {
-            if(this.heads[this.heads.length-1]===value){
-               return
-            }
-            if (!this.contains(this.heads, value)) {
-                this.$bus.$emit("headsPush",value)//home
-            } else {
-                let index = this.heads.indexOf(value);
-                this.$bus.$emit("headsSplice",index+1)//home
-            }
             if (value === '课程内容') {
-                console.log(this.showClass)
                 this.$router.push({
                     path: "/main/classDetail",
                     query: {
@@ -337,21 +338,21 @@ export default {
                 this.$store.state.isTeacher = res3.data.r;
                 this.isShow = true
             }))
+            getRequest(url.message.getNoRead,{
+                accountName:sessionStorage.getItem("accountName")
+            }).then(result=>{
+                this.message = result.r
+                this.setMessage()
+            })
         }
     },
     mounted() {
         this.$bus.$on("changeDrawer", this.changeDrawer);
         this.$bus.$on("show", this.show);
         this.$bus.$on("setHomeWork", this.setHomeWork);
+        this.$bus.$on("ignoreMessage",this.ignoreMessage);//给Message组件使用
         this.iniALL();
-        getRequest(url.message.getNoRead,{
-            accountName:sessionStorage.getItem("accountName")
-        }).then(result=>{
-            this.message = result.r
-            this.setMessage()
-        })
     },
-    watch: {},
 }
 </script>
 <style scoped>

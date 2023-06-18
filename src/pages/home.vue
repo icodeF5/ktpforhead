@@ -14,7 +14,7 @@ export default {
     name: "Home",
     data() {
         return {
-            heads: JSON.parse(sessionStorage.getItem('heads')),
+            heads: JSON.parse(sessionStorage.getItem('heads'))||[],
             emailDialog:false,
             message:[],
         }
@@ -29,27 +29,12 @@ export default {
     },
     methods: {
         toClassDetail(sClass) {
-            let flag = false;
-            let value = '课程内容'
-            sessionStorage.removeItem("classDetail")
-            if (!this.contains(this.heads, value)) {
-                this.heads.push(value);
-                sessionStorage.setItem('heads', JSON.stringify(this.heads))
-            } else {
-                let index = this.heads.indexOf(value);
-                this.heads.splice(index + 1);
-                flag = true
-                sessionStorage.setItem('heads', JSON.stringify(this.heads))
-            }
             this.$router.push({
                 path: "/main/classDetail",
                 query: {
                     showClassCode: sClass.code,
                 }
             })
-            if(this.heads[this.heads.length-1]==='课程内容'&&flag){
-                window.location.reload()
-            }
         },
         contains(arr, value) {
             for (let i = 0; i < arr.length; i++) {
@@ -64,29 +49,41 @@ export default {
                 this.heads.splice(0,this.heads.length)
             }
             this.heads.push(value)
-            sessionStorage.setItem('heads', JSON.stringify(this.heads))
         },
         headsSplice(index) {
             this.heads.splice(index);
-            sessionStorage.setItem('heads', JSON.stringify(this.heads))
         },
         reStart() {
             this.heads = []
-            sessionStorage.setItem('heads', JSON.stringify(this.heads))
         }
 
     },
+    watch:{
+      $route(to,from){
+          let value = to.name;
+          if(value==='我的课堂'){
+              this.reStart()
+              return;
+          }
+          if(this.heads[this.heads.length-1]===value){
+              return
+          }
+          if (!this.contains(this.heads, value)) {
+              this.headsPush(value)
+          } else {
+              let index = this.heads.indexOf(value);
+              this.headsSplice(index)
+          }
+      }
+    },
     created() {
         this.$bus.$on("toClassDetail", this.toClassDetail);
-        this.$bus.$on("headsPush",this.headsPush);
-        this.$bus.$on("headsSplice",this.headsSplice);
-        this.$bus.$on("reStart",this.reStart);
+        window.addEventListener('beforeunload',(event)=>{
+            sessionStorage.setItem("heads",JSON.stringify(this.heads))
+        })
     },
     beforeDestroy() {
         this.$bus.$off("toClassDetail");
-        this.$bus.$off("headsPush");
-        this.$bus.$off("headsSplice");
-        this.$bus.$off("reStart");
     }
 }
 </script>

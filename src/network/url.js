@@ -40,6 +40,7 @@ const url = {
         getStuHomework:"/homeWork/getStuHomework",
         cuijiao:"/homeWork/cuijiao",
         delete:"/homeWork/delete",
+        cuijiaoAll:"/homeWork/cuijiaoAll"
     },
     message:{
         readAllMessage:"/message/readAllMessage",

@@ -1,63 +1,95 @@
 <template>
-    <div class="card-layout-box" v-show="isShow">
-        <div class="layout-left flex-align">
-            <img src="../../assets/homeWork.png">
-            <div class="another-name">
-                <span class="lable-type">作业</span>
-            </div>
-        </div>
-        <div class="layout-right flex-baseline">
-            <div class="layout-right-info">
-                <h6 class="info-title" @click='showWork'>{{ work.title }}</h6>
-                <div class="status-bar">
-                    提交截止时间：{{(new Date(work.endTime).toLocaleDateString("zh-CN",timeOption))}}
-                    <div class="el-divider el-divider--vertical"></div>
-                    <span>已结束</span>
-                    <div class="el-divider el-divider--vertical"></div>
-                    <span>个人作业</span>
+    <div style="width: 100%;" v-show="isShow">
+        <div class="card-layout-box" v-show="isOwner">
+            <div class="layout-left flex-align">
+                <img src="../../assets/homeWork.png">
+                <div class="another-name">
+                    <span class="lable-type">作业</span>
                 </div>
-                <p class="learning-state" v-show="!isOwner">
-                    <span>未提交</span>
-                </p>
             </div>
-            <div class="layout-right-functional">
-                <el-button type="primary" plain @click="submitWork" v-show="!isOwner">提交</el-button>
-                <div class="learning-situation" v-show="isOwner">
+            <div class="layout-right flex-baseline">
+                <div class="layout-right-info">
+                    <h6 class="info-title" @click='showWork'>{{ work.title }}</h6>
+                    <div class="status-bar" v-if="nowTime>workStartDate">
+                        提交截止时间：{{(workEndDate.toLocaleDateString("zh-CN",timeOption))}}
+                        <div class="el-divider el-divider--vertical"></div>
+                        <span>个人作业</span>
+                    </div>
+                    <div v-else class="status-bar">
+                        <span class="font-color--warning">将于{{workStartDate.toLocaleDateString("zh-CN",timeOption)}}开始</span>
+                        <div class="el-divider el-divider--vertical"></div>
+                        <span>个人作业</span>
+                    </div>
+                </div>
+                <div class="layout-right-functional">
+                    <div class="learning-situation" v-show="nowTime>workStartDate">
                     <span class="item-info">
                         <i class="font-color--main">{{status[0]}}</i>
                         <i class="pt-text">已批完</i>
                     </span>
-                    <span class="item-info">
+                        <span class="item-info">
                         <i class="font-color--main">{{status[1]}}</i>
                         <i class="pt-text">未批完</i>
                     </span>
-                    <span class="item-info">
+                        <span class="item-info">
                         <i class="font-color--main">{{status[2]}}</i>
                         <i class="pt-text">未交</i>
                     </span>
+                    </div>
+                    <el-dropdown  @command="cm"  trigger="click">
+                   <span class="more-but">
+                       <i class="el-icon-more t"></i>
+                       <i class="text">更多</i>
+                   </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="a">编辑</el-dropdown-item>
+                            <el-dropdown-item command="b">移动到章节</el-dropdown-item>
+                            <el-dropdown-item command="c">保存到备课区</el-dropdown-item>
+                            <el-dropdown-item command="d" @click.native="delete2">删除</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
                 </div>
-                <el-dropdown v-show="isOwner" @command="cm"  trigger="click">
-                    <i class="el-icon-more"></i>
-                    更多
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="a">编辑</el-dropdown-item>
-                        <el-dropdown-item command="b">移动到章节</el-dropdown-item>
-                        <el-dropdown-item command="c">保存到备课区</el-dropdown-item>
-                        <el-dropdown-item command="d" @click.native="delete2">删除</el-dropdown-item>
-                    </el-dropdown-menu>
-                </el-dropdown>
+            </div>
+        </div>
+        <div class="card-layout-box" v-show="!isOwner && nowTime>workStartDate">
+            <div class="layout-left flex-align">
+                <img src="../../assets/homeWork.png">
+                <div class="another-name">
+                    <span class="lable-type">作业</span>
+                </div>
+            </div>
+            <div class="layout-right flex-baseline" >
+                <div class="layout-right-info">
+                    <h6 class="info-title" @click='showWork'>{{ work.title }}</h6>
+                    <div class="status-bar">
+                        提交截止时间：{{workEndDate.toLocaleDateString("zh-CN",timeOption)}}
+                        <div class="el-divider el-divider--vertical"></div>
+                        <span>{{nowTime>workEndDate?'已结束':'未结束'}}</span>
+                        <div class="el-divider el-divider--vertical"></div>
+                        <span>个人作业</span>
+                    </div>
+                    <p class="learning-state">
+                        <span class="font-color--warning" v-show="!submit">未提交</span>
+                        <span v-show="submit&&work22.annex.score==='未批'">已提交</span>
+                        <span class="font-color--main" v-show="work22.annex.score!=='未批'">已批改{{work22.annex.score}}分</span>
+                    </p>
+                </div>
+                <div class="layout-right-functional">
+                    <el-button type="primary"  @click="submitWork" v-show="!submit">提交作业</el-button>
+                    <el-button  plain @click="submitWork" v-show="submit && work22.annex.score==='未批'">已提交</el-button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 <script>
-import axios from "axios";
 import {getRequest} from "network/request";
 import url from "network/url";
+import {mapState} from "vuex";
 
 export default {
     name: "HomeWork",
-    props: ["work","isOwner"],
+    props: ["work"],
     data(){
         return{
             timeOption:{
@@ -65,8 +97,22 @@ export default {
                 month: '2-digit',
                 day: '2-digit'
             },
-            isShow:!this.isOwner,
+            // 是否是该班级的老师
+            isOwner:false,
+            // 是否展示
+            isShow:false,
             status:[],
+        //     现在的时间
+            nowTime: new Date(),
+            // 作业截止时间
+            workEndDate:new Date(this.work.endTime),
+            workStartDate:new Date(this.work.startTime),
+        //     是否提交该作业
+            submit:false,
+            work22:{
+                user:{},
+                annex:{}
+            },
         }
     },
     methods: {
@@ -77,7 +123,6 @@ export default {
         showWork() {
             this.$bus.$emit("setHomeWork", this.work.id,false,this.isOwner)//传给header
             this.$bus.$emit("show", '作业详细')//传给header
-
         },
         delete2(){
             this.$confirm('是否删除该作业？', '提示', {
@@ -104,26 +149,45 @@ export default {
         cm(command){
 
         },
+        iniTeaAll(){
+            getRequest(url.homeWork.status,{
+                id:this.work.id
+            }).then(result=>{
+                this.status = result.r;
+                console.log("获取作业状态")
+                console.log(result.r)
+                this.isShow = true
+            })
+        },
+        iniStuAll(){
+            getRequest(url.homeWork.isSubmit, {
+                accountName: sessionStorage.getItem("accountName"),
+                id: this.work.id
+            }).then(result => {
+                this.work22 = result.r
+                this.submit = result.r.annex.work!==null
+                this.isShow = true
+            })
+        },
         iniAll(){
             this.isShow = false
-            axios.get("http://localhost:8080/homeWork/status?id="+this.work.id).then(
-                response=>{
-                    this.status = response.data.r;
-                    this.isShow = true
-                },
-                error=>{
-                    this.$message({
-                        type:"error",
-                        message:"错误"
-                    })
+            getRequest(url.course.getByCode,{
+                code:this.work.code,
+            }).then(result=>{
+                this.isOwner = result.r.ownerId===sessionStorage.getItem("accountName")
+                console.log(this.isOwner)
+                if(this.isOwner){
+                    console.log("老师")
+                    this.iniTeaAll()
+                }else{
+                    console.log("学生")
+                    this.iniStuAll()
                 }
-            )
+            })
         }
     },
     mounted() {
-        if(this.isOwner){
-            this.iniAll()
-        }
+        this.iniAll()
     }
 }
 </script>
@@ -161,6 +225,23 @@ export default {
     flex-direction: column;
     min-width: 85px;
     margin-right: 16px;
+    font-size: 12px;
+}
+
+.card-layout-box .layout-right-functional .more-but {
+    text-align: center;
+    cursor: pointer;
+    display: block;
+    min-width: 72px;
+}
+.t:hover{
+    color: #409EFF;
+}
+.card-layout-box .layout-right-functional .more-but .text {
+    display: block;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    color: #202124;
     font-size: 12px;
 }
 

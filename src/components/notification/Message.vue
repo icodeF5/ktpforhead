@@ -56,6 +56,7 @@ export default {
                 messageId:this.message.id
             }).then(result=>{
                 this.message.isRead = true
+                this.$bus.$emit("ignoreMessage",this.message);
                 this.$message({
                     type:result.r,
                     message:result.message

@@ -63,6 +63,9 @@ li, menu, nav, ol, p, section, select, table, tbody, td, textarea, th, tr, ul, v
 .font-color--main {
     color: #4285f4;
 }
+.font-color--warning {
+    color: #ff941f;
+}
 html, body, #app {
     width: 100%;
   height: 100%;

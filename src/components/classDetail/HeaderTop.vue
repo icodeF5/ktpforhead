@@ -117,7 +117,7 @@
                                 <div v-show="homeWork.length!==0">
                                     <ul class="course-list-box">
                                         <li v-for="(h,index) in homeWork" :key="index" class="flex-between">
-                                            <HomeWork :work="h" :isOwner="isOwner"/>
+                                            <HomeWork :work="h"/>
                                         </li>
                                     </ul>
                                 </div>
@@ -335,14 +335,18 @@ export default {
             getRequest(url.homeWork.getAllWork, {
                 code: this.showClassCode
             }).then(result => {
+                this.isShow = false
                 this.homeWork = result.r == null ? [] : result.r;
                 this.isShow = true;
             })
             getRequest(url.course.getByCode, {
                 code: this.showClassCode
             }).then(result => {
+                this.isShow = false
                 this.$store.state.showClass = result.r
                 this.isOwner = result.r.ownerId === sessionStorage.getItem("accountName")
+                this.showClass = true
+                this.isShow = true
             })
         }
     },

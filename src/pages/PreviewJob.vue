@@ -146,9 +146,10 @@ export default {
     this.fileName = this.stu.annex.work.split('.')[1]+'.'+this.stu.annex.work.split('.')[2]
   }
 }
-</script>
+</script> 
 <style scoped>
 .top{
+    z-index: 3;
     width: 100%;
     position: fixed;
   height: 73px;

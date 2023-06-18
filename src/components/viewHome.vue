@@ -162,7 +162,6 @@
                         <span class="font-color--main">{{message.length}}</span>
                         条未读信息
                     </span>
-                    <el-icon class="el-icon-close d-close"></el-icon>
                 </h2>
                 <div class="noread-box">
                     <Message v-for="item in message" :key="item.id" :message="item">
@@ -288,8 +287,8 @@ export default {
     data() {
         return {
             active: {
-                activeName: sessionStorage.getItem("classTab") ,
-                guiDangActiveName:sessionStorage.getItem("guiDangTab"),
+                activeName: sessionStorage.getItem("classTab") || this.isTeacher?'third':'second' ,
+                guiDangActiveName:sessionStorage.getItem("guiDangTab")||this.isTeacher?'first':'second',
             },
             joining: [],//加入的课程的code
             Class: [],//分组后加入的课程
@@ -567,8 +566,6 @@ export default {
                 this.noGroupTeachClass = this.findClass(this.teachClass)
 
                 this.topClass = res3.data.r == null ? [] : res3.data.r;
-                console.log("置顶课程=")
-                console.log(this.topClass)
 
                 this.$store.dispatch("iniRole", this.active);
 

@@ -88,7 +88,7 @@
                         </div>
                     </div>
                     <div class="el-divider el-divider--horizontal"></div>
-                    <div v-show="!isSubmit" class="submit-box mb24">
+                    <div v-show="!isSubmit || isUpdate " class="submit-box mb24">
                         <div class="flex-between mb24">
                             <div class="font20">
                                 提交内容
@@ -107,7 +107,8 @@
                                 action="http://localhost:8080/homeWork/upload"
                                 :data="{
                                         accountName:accountName,
-                                        id:homeWork.id
+                                        id:homeWork.id,
+                                        isUpdate:isUpdate,
                                     }"
                                 multiple
                                 ref="upload"
@@ -125,7 +126,7 @@
                             <el-input type="textarea" style="width: 100%" placeholder="请输入留言"></el-input>
                         </div>
                     </div>
-                    <div v-show="isSubmit" class="submit-content mb24">
+                    <div v-show="isSubmit&&!isUpdate" class="submit-content mb24">
                         <div class="mb24 flex-between">
                             <div class="font20">
                                 提交内容
@@ -144,7 +145,7 @@
                                 <el-button size="small" plain>
                                     查重结果
                                 </el-button>
-                                <el-button size="small">
+                                <el-button size="small" type="primary" @click="updateSubmit" v-show="work.annex.score!=='未批'">
                                     更新提交
                                 </el-button>
                             </div>
@@ -158,7 +159,12 @@
                                     </div>
                                 </div>
                                 <div class="right">
-                                    <p class="font24" style="color: rgb(66, 133, 244); margin-top: 40px;"> 已提交</p>
+                                    <p class="font24" style="color: rgb(66, 133, 244); margin-top: 40px;" v-show="isSubmit!==null && work.annex.score==='未批'"> 已提交</p>
+                                    <p class="font16" v-show="work.annex.score!=='未批'">成绩</p>
+                                    <p class="font24" style="color: rgb(95, 99, 104);" v-show="work.annex.score!=='未批'">
+                                        <span style="color: rgb(255, 96, 0);">{{work.annex.score}}</span>
+                                        /{{homeWork.allScore}}
+                                    </p>
                                 </div>
                             </div>
                             <div class="annex-box">
@@ -166,9 +172,6 @@
                                     作业附件
                                     <span class="font12 tip">{{ 0 }}个</span>
                                 </div>
-                                <!--                                <div class="attachment flex-between mb16">-->
-                                <!--                                    -->
-                                <!--                                </div>-->
                             </div>
                         </div>
                     </div>
@@ -298,7 +301,7 @@
                                 </el-button>
                             </div>
                             <div>
-                                <el-button type="primary" size="small">
+                                <el-button type="primary" size="small" @click="cuijiaoAll">
                                     一键催交
                                 </el-button>
                             </div>
@@ -324,7 +327,7 @@
                                             {{ scope.row.user.name }}
                                         </span>
                                         <span class="common_block">
-                                            {{ scope.row.user.accountName }}
+                                            {{ scope.row.user.userId }}
                                         </span>
                                     </div>
                                 </template>
@@ -447,11 +450,8 @@
 </template>
 <script>
 import NoData from "components/NoData.vue";
-import axios from "axios";
-import {isObject} from "element-ui";
 import {getRequest, postRequest} from "network/request";
 import url from "network/url";
-import {mapGetters} from "vuex";
 
 export default {
     name: "Work",
@@ -460,7 +460,14 @@ export default {
     data() {
         return {
             isSubmit: false,//是否已经提交了
-            isShow: false,
+            // 作业
+            work:{
+                user:{},
+                annex:{}
+            },
+            // 是否为更新提交状态
+            isUpdate:false,
+            isShow: true,
             homeWork: {},
             comment: "",
             activeName: this.submit === 'true' ? "second" : "first",
@@ -532,6 +539,7 @@ export default {
         //提交作业
         submitWork() {
             this.$refs.upload.submit();
+            this.isUpdate = false
             window.location.reload()
         },
         //催交作业s
@@ -549,6 +557,33 @@ export default {
                     message:result.message
                 })
             })
+        },
+        // 一键催交
+        cuijiaoAll(){
+            this.$confirm('确定给全部未交作业的学生发送催交信息吗？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                postRequest(url.homeWork.cuijiaoAll,{
+                    workId:this.homeWorkId,
+                    accountName:sessionStorage.getItem("accountName"),
+                },this.studentForm).then(result=>{
+                    this.$message({
+                        type:"success",
+                        message:"已发送信息"
+                    })
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消'
+                });
+            });
+        },
+        // 更新提交
+        updateSubmit(){
+            this.isUpdate = true
         },
         //修改成绩
         giveGrade(data) {
@@ -588,7 +623,7 @@ export default {
             ]).then(result => {
                 this.$message({
                     type: "success",
-                    message: "修改成功成功！"
+                    message: "修改成功！"
                 })
             })
         },
@@ -648,7 +683,8 @@ export default {
                 accountName: sessionStorage.getItem("accountName"),
                 id: this.homeWorkId
             }).then(result => {
-                this.isSubmit = !result.r
+                this.work = result.r
+                this.isSubmit = result.r.annex.work!==null
                 this.isShow = true
             })
         },
@@ -659,12 +695,9 @@ export default {
                 this.studentForm = result.r == null ? [] : result.r;
                 this.showStudentForm = this.studentForm;
             })
-
             getRequest(url.homeWork.status, {
                 id: this.homeWorkId
             }).then(result => {
-                console.log("作业状态----")
-                console.log(result.r)
                 this.status = result.r
                 this.isShow = true
             })
