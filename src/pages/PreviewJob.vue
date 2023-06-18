@@ -4,7 +4,7 @@
     <div class="onLeft">
       <p class="name">{{stuName}}</p>
       <div class="item2">
-        标题
+        {{fileName}}
         <span>1/1</span>
       </div>
     </div>
@@ -26,7 +26,8 @@
     </div>
   </el-header>
     <el-main class="showFile">
-    <iframe v-if="fileType!=='application/octet-stream'" :src="urls"  class="fileHH"/>
+      <div ref="showWord"></div>
+    <iframe v-if="fileType!=='application/octet-stream' &&fileType!=='application/vnd.openxmlformats-officedocument.wordprocessingml.document'" :src="urls"  class="fileHH"/>
     <div class="fileHH" v-if="fileType==='application/octet-stream'">
       <img src="../assets/fileicons/zip.png">
       <a :href=urls :download=fileName>{{fileName}}</a>
@@ -39,7 +40,7 @@
 import {getRequest, postRequest} from "network/request";
 import url from "network/url";
 import axios from "axios";
-
+let docx = require("docx-preview");
 export default {
   name: "PreviewJob",
   data(){
@@ -118,6 +119,12 @@ export default {
             this.urls = window.URL.createObjectURL(response.data)
             this.fileType = response.data.type
             console.log(this.urls)
+            if (this.fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"){
+              let docx = require("docx-preview")
+              this.$nextTick(() => {
+                docx.renderAsync(response.data, this.$refs.showWord).then(x => console.log("docx: finished",x))
+              })
+            }
           },
           error=>{
             console.log(error)
