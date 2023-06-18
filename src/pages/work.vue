@@ -390,7 +390,7 @@
                                                    style="font-size: 16px;color: #4d90fe;" @click="cuijiao(scope.row)">
                                             催交
                                         </el-button>
-                                        <el-button v-if="scope.row.annex.work!=null" type="text" @click="openNew(scope.row.user.name,scope.row)"
+                                        <el-button v-if="scope.row.annex.work!=null" type="text" @click="openNew(scope.row)"
                                                    style="font-size: 16px;color: #4d90fe;">
                                             进入批阅
                                         </el-button>
@@ -517,8 +517,7 @@ export default {
             console.log(`当前页: ${val}`);
         },
       //进入批阅
-      openNew: function (name, stu) {
-        console.log(stu)
+      openNew: function (stu) {
         let post1 = JSON.stringify(stu)
         let post2 = JSON.stringify(this.homeWork)
         let routeData = this.$router.resolve({
