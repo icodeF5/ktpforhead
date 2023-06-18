@@ -9,6 +9,7 @@ import Work from "@/pages/work.vue";
 import Notification from "@/pages/Notification.vue";
 import ClassMember from "@/pages/ClassMember.vue";
 import PreviewJob from "@/pages/PreviewJob";
+import axios from "axios";
 
 
 Vue.use(VueRouter)
@@ -133,30 +134,35 @@ VueRouter.prototype.replace = function(location, resolve, reject) {
 };
 
 // 导航守卫: 路由拦截，防止恶意绕开权限通过url访问
-// router.beforeEach((to, from, next) => {
-//     /* from: 上一个页面*/
-//     /* to: 下一个页面*/
-//
-//     if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
-//         if (window.localStorage.state !== undefined && window.localStorage.state === "true") {
-//             // token有效
-//             const role = to.meta.role.filter(el => el === window.localStorage.role) // 遍历其中数组的每一个
-//             if (role.length !== 0) {
-//                 next()
-//             } else {
-//                 // 回上一个页面
-//                 router.back()
-//             }
-//         } else {
-//             // token无效或者过期
-//             next({
-//                 path: '/'
-//             })
-//         }
-//     } else {
-// 不是访问博客链接的话或者访问博客链接该值为false时，则直接进入下面的内容，如果不调用Next则页面会卡住
-//         next()
-//     }
-// })
+router.beforeEach((to, from, next) => {
+    /* from: 上一个页面*/
+    /* to: 下一个页面*/
+
+    if (to.path.startsWith('/login')) {
+        window.localStorage.removeItem('access-admin')
+        next()
+    } else {
+        let admin = window.localStorage.getItem('access-admin')
+        if (!admin) {
+            next({path:'/login'})
+        }
+        else {
+            // 校验 token 合法性
+            // axios({
+            //     url: 'http://localhost:8080/checkToken',
+            //     method: 'get',
+            //     headers: {
+            //         token: admin.token
+            //     }
+            // }).then(res => {
+            //     if (!res.data) {
+            //         console.log('校验失败')
+            //         next({path: '/error'})
+            //     }
+            // })
+            next()
+        }
+    }
+})
 
 export default router

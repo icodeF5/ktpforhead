@@ -263,6 +263,9 @@ export default {
                     password: this.user.password
                 }).then(result => {
                     if (result.success) {
+                      let token = result.r;
+                      console.log(token)
+                      localStorage.setItem('access-admin', token)
                         sessionStorage.setItem("accountName",this.user.username);
                         sessionStorage.setItem('heads', JSON.stringify([]));
                         this.$message({

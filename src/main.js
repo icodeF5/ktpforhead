@@ -13,7 +13,7 @@ import 'quill/dist/quill.bubble.css'
 /*导入vuex*/
 import store from './store'
 /*导入ElementUI*/
-import ElementUI from 'element-ui'
+import ElementUI, {Message, MessageBox} from 'element-ui'
 /*导入css*/
 import 'element-ui/lib/theme-chalk/index.css'
 /*导入表单验证的js文件*/
@@ -22,6 +22,7 @@ import myModule from './modules/myModule.js'
 import  target from './config/apiConfig'
 import VueRouter from "vue-router";
 import Vuex from "vuex";
+import axios from "axios";
 
 /*阻止启动生产消息*/
 Vue.config.productionTip = false
@@ -52,5 +53,37 @@ new Vue({
     Vue.prototype.$bus = this;
   }
 }).$mount('#app')
+
+//将token添加到axios请求头部
+axios.interceptors.request.use(
+    config => {
+      if (localStorage.getItem('access-admin')) {
+        config.headers.token = localStorage.getItem('access-admin')
+      }
+      return config
+    },
+    error => {
+      return Promise.reject(error)
+    }
+)
+
+axios.interceptors.response.use(response => {
+      return response
+    },
+    error => {
+  if(error.code===401){
+    Message({
+      showClose: true,
+      message: "账号信息已过期，请重新登录",//弹出失败原因
+      type: 'error'
+    })
+    router.push({
+      path:"/login"
+    })
+  }
+      console.log("axios中response报错", error);
+      return Promise.reject(error);
+    })
+
 
 
