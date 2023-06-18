@@ -149,6 +149,8 @@ export default {
 </script>
 <style scoped>
 .top{
+    width: 100%;
+    position: fixed;
   height: 73px;
   display: flex;
   justify-content: space-between;
@@ -206,6 +208,7 @@ p{
   height: 99%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
   background-color: #f5f7fa;
+    margin-top: 60px;
 }
 .showFile{
   height: 100%;
