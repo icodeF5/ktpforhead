@@ -13,7 +13,8 @@ export default {
   props: ['showClassCode'],
   data() {
     return {
-      checked: true,
+      msgInput: '',
+      dialogTable: false,
       input: '',
       activeName: 'first',
       isOpen: false,
@@ -149,6 +150,11 @@ export default {
 
     handleSelectionChange(val) {
       this.multipleSelection = val;
+    },
+
+    dialogTableVisible(index, row) {
+      this.dialogTable = true
+      console.log(index, row)
     }
   },
 
@@ -274,8 +280,8 @@ export default {
                     </el-table-column>
 
                     <el-table-column
-                        width="150">
-                      <div class="cell">
+                        width="150" >
+                      <div class="cell" slot-scope="scope" @click="dialogTableVisible(scope.$index,scope.row)">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
@@ -318,8 +324,8 @@ export default {
                     </el-table-column>
 
                     <el-table-column
-                        width="293">
-                      <div class="cell">
+                        width="293" >
+                      <div class="cell" slot-scope="scope" @click="dialogTableVisible(scope.$index,scope.row)">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
@@ -370,8 +376,8 @@ export default {
                     </el-table-column>
 
                     <el-table-column
-                        width="150">
-                      <div class="cell">
+                        width="150" >
+                      <div class="cell" slot-scope="scope" @click="dialogTableVisible(scope.$index,scope.row)">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
@@ -445,8 +451,8 @@ export default {
                   </el-table-column>
                   <el-table-column
                       is-leaf
-                      width="143">
-                    <div class="cell">
+                      width="143" >
+                    <div class="cell" slot-scope="scope" @click="dialogTableVisible(scope.$index,scope.row)">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
@@ -504,11 +510,11 @@ export default {
             </div>
             <div class="ri" v-show="!showGroupTable">
               <div class="item">
-                <el-checkbox v-model="checked" aria-describedby="el-tooltip-3910" tabindex="0" label="人数限制">
+                <el-checkbox  aria-describedby="el-tooltip-3910" tabindex="0" label="人数限制">
                 </el-checkbox>
               </div>
               <div class="item">
-                <el-checkbox v-model="checked" aria-describedby="el-tooltip-3910" tabindex="0" label="不允许退课">
+                <el-checkbox  aria-describedby="el-tooltip-3910" tabindex="0" label="不允许退课">
                 </el-checkbox>
               </div>
               <div class="session_search">
@@ -633,8 +639,8 @@ export default {
                       </el-table-column>
 
                       <el-table-column
-                          width="150">
-                        <div class="cell">
+                          width="150" >
+                        <div class="cell" slot-scope="scope" @click="dialogTableVisible(scope.$index,scope.row)">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
@@ -680,13 +686,13 @@ export default {
                       </el-table-column>
 
                       <el-table-column
-                          width="293">
-                        <div class="cell">
-                  <span class="opt-btn mgr-16">
-                    <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
-                    私聊
-                  </span>
-                        </div>
+                          width="293" >
+<!--                        <div class="cell" slot-scope="scope" @click="dialogTableVisible(scope.$index,scope.row)">-->
+<!--                  <span class="opt-btn mgr-16">-->
+<!--                    <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>-->
+<!--                    私聊-->
+<!--                  </span>-->
+<!--                        </div>-->
                       </el-table-column>
 
                     </el-table>
@@ -737,8 +743,8 @@ export default {
                       </el-table-column>
 
                       <el-table-column
-                          width="150">
-                        <div class="cell">
+                          width="150" >
+                        <div class="cell" slot-scope="scope" @click="dialogTableVisible(scope.$index,scope.row)">
                   <span class="opt-btn mgr-16">
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
@@ -823,9 +829,9 @@ export default {
                     </el-table-column>
                     <el-table-column
                         is-leaf
-                        width="143">
-                      <div class="cell">
-                  <span class="opt-btn mgr-16">
+                        width="143" >
+                      <div class="cell" slot-scope="scope" @click="dialogTableVisible(scope.$index,scope.row)">
+                  <span class="opt-btn mgr-16" >
                     <i class="el-icon-chat-line-round font_family" style="font-size: 25px"></i>
                     私聊
                   </span>
@@ -856,6 +862,73 @@ export default {
         </div>
       </div>
 
+    <div >
+      <el-dialog :visible.sync="dialogTable" class="component-common_message" style="z-index: 2026">
+        <div class="sidebar">
+          <div class="item active">
+            <i class="el-icon-chat-line-round" style="font-size: 26px"></i>
+            <span class="name">会话</span>
+          </div>
+          <div class="item">
+            <i class="el-icon-s-management" style="font-size: 26px"></i>
+            <span class="name">好友</span>
+          </div>
+        </div>
+        <div class="user-list">
+          <el-input type="text" autocomplete="off" placeholder="请输入姓名" style="border-radius: 50px;"></el-input>
+          <div id="recent-list" class="recent-list" style>
+            <div id="frendIndex0" class="item">
+              <div class="content">
+                <div class="avatar">
+                  <img data-src="https://img.ketangpai.com/Public/static/soon/images/20/3.jpg"
+                       src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                  lazy="error">
+                </div>
+                <div class="content-info">
+                  <div class="name-box">
+                    <p class="name">艾斯</p>
+                    <span class="time">70/01/01 08:00</span>
+                  </div>
+                  <p class="msg"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="msg-box">
+          <div class="top-head">
+            <div class="name">
+              艾斯
+              <span class="type">熟悉  互动课堂</span>
+            </div>
+          </div>
+          <div class="msg-list"></div>
+          <div id="drag-file-area" class="handle-box">
+          <div class="top-handle">
+            <div>
+              <div class="upload-demo">
+                <el-upload tabindex="0" action="">
+                  <i class="el-icon-paperclip rotate45"></i>
+                  <el-input  type="file" name="file" style="display: none"></el-input>
+                </el-upload>
+              </div>
+            </div>
+            <div class="chat-record">
+              <i class="el-icon-time"></i>
+              查看旧版聊天记录
+            </div>
+          </div>
+          <el-input v-model="msgInput" class="text-area el-input--medium" type="textarea" placeholder="请输入内容" rows="2" >
+            <textarea autocomplete="off"  style="min-height: 31px; "></textarea>
+          </el-input>
+            <el-button disabled="disabled" class="el-button submit el-button--primary el-button--mini" type="button">
+              <span>发送</span>
+            </el-button>
+        </div>
+        </div>
+
+      </el-dialog>
+  </div>
 
 </div>
 
@@ -863,6 +936,336 @@ export default {
 </template>
 
 <style scoped>
+
+.component-common_message .msg-box .handle-box .submit {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+}
+
+>>>.el-button {
+  display: inline-block;
+}
+
+.el-button--primary.is-disabled, .el-button--primary.is-disabled:active, .el-button--primary.is-disabled:focus, .el-button--primary.is-disabled:hover {
+  color: #fff;
+  background-color: #a1c2fa;
+  border-color: #a1c2fa;
+}
+
+.component-common_message .msg-box .handle-box .submit {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+}
+
+>>>.icon-fujian_outline:before {
+  content: "\e67b";
+}
+
+>>>.el-textarea__inner {
+  display: block;
+  resize: vertical;
+  padding: 5px 15px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  width: 100%;
+  font-size: inherit;
+  color: #606266;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+}
+
+>>>.component-common_message .msg-box .handle-box .el-textarea textarea {
+  border: none;
+  resize: none;
+}
+
+>>>.el-textarea {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  vertical-align: bottom;
+  font-size: 14px;
+}
+
+>>>.el-input--medium {
+  font-size: 14px;
+}
+
+>>>.component-common_message .msg-box .handle-box .el-textarea {
+  height: 64px;
+  padding: 0 12px;
+}
+
+.component-common_message .msg-box .handle-box .top-handle i {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 22px;
+  color: #74787c;
+}
+
+.component-common_message .msg-box .handle-box .top-handle .chat-record i {
+  margin-right: 6px;
+}
+
+.component-common_message .msg-box .handle-box .top-handle .chat-record {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.component-common_message .msg-box .handle-box .top-handle i {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 22px;
+  color: #74787c;
+}
+
+
+>>>.el-upload {
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  outline: 0;
+}
+
+.component-common_message .msg-box .handle-box .top-handle {
+  padding: 15px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.component-common_message .msg-box .handle-box {
+  position: relative;
+  box-shadow: inset 0 1px 0 0 #e8eaed;
+  flex: 0 0 auto;
+  padding-bottom: 66px;
+}
+
+>>>.component-common_message .msg-box .msg-list {
+  flex: 1 1 auto;
+  padding: 0 12px 12px;
+  overflow: auto;
+  margin-top: 10px;
+}
+
+.component-common_message .msg-box .top-head .name .type {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+  color: #74787c;
+  line-height: 17px;
+}
+
+.component-common_message .el-dialog__body .msg-box .top-head .name {
+  font-size: 20px;
+  font-weight: 500;
+  text-align: left;
+  color: #3c4043;
+  line-height: 28px;
+}
+
+.component-common_message .msg-box .top-head {
+  flex: 0 0 auto;
+  padding: 22px 56px 22px 24px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  border-bottom: 1px solid #e8f0ff;
+}
+
+.component-common_message .msg-box {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.component-common_message .el-dialog__body .user-list .recent-list .item .content .avatar img {
+  width: 40px;
+  height: 40px;
+  display: block;
+  border-radius: 50%;
+}
+
+.msg {
+  margin-top: 8px;
+  display: -webkit-box;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+  white-space: normal;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+  color: #74787c;
+  line-height: 14px;
+}
+
+.time {
+  white-space: nowrap;
+  opacity: .5;
+  font-size: 12px;
+  transform: scale(.83);
+  font-family: NotoSansHans,NotoSansHans-Regular;
+  font-weight: 400;
+  text-align: left;
+  color: #74787c;
+}
+
+.component-common_message .el-dialog__body .user-list .recent-list .item .content .content-info .name-box .name {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  color: #3c4043;
+  line-height: 16px;
+  display: -webkit-box;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+  white-space: normal;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.name-box {
+  display: flex;
+  justify-content: space-between;
+}
+
+.content-info {
+  flex: 1;
+}
+
+.avatar {
+  margin-right: 8px;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.component-common_message .el-dialog__body .user-list .recent-list .item:not(:last-child) .content {
+  border-bottom: 1px solid #dadce0;
+}
+
+.component-common_message .el-dialog__body .user-list .recent-list .item {
+  position: relative;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+>>>.el-input {
+  position: relative;
+  font-size: 14px;
+  display: inline-block;
+  width: 100%;
+}
+
+>>>.component-common_message .user-list .el-input {
+  padding: 16px;
+  border-bottom: 1px solid #e8f0ff;
+}
+
+>>>.component-common_message .el-dialog .el-dialog__header i {
+  color: #3c4043;
+  font-size: 22px;
+  line-height: 22px;
+}
+
+>>>.component-common_message .el-dialog .el-dialog__header {
+  position: absolute;
+  right: 0;
+  top: 6px;
+  border-bottom: 0;
+  cursor: pointer;
+}
+
+>>>.el-dialog .el-dialog__header {
+  height: 50px;
+  border-bottom: 1px solid #dadce0;
+  padding: 12px;
+  line-height: 12px;
+}
+
+>>>.component-common_message .el-dialog {
+  width: 880px!important;
+}
+
+.user-list {
+  flex: 0 0 230px;
+  background: #f8f9fa;
+  display: flex;
+  flex-flow: column nowrap;
+  width: 200px;
+}
+
+.component-common_message .el-dialog__body .sidebar .item {
+  position: relative;
+  cursor: pointer;
+  padding: 20px 20px 0;
+  text-align: center;
+}
+
+>>>.component-common_message .el-dialog__body .sidebar .item .name {
+  font-size: 12px;
+  font-weight: 400;
+  text-align: right;
+  color: #fff;
+  line-height: 16px;
+}
+
+.component-common_message .el-dialog__body .sidebar .item i {
+  display: inline-flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+}
+
+.sidebar {
+  flex: 0 0 66px;
+  padding: 8px 0;
+  background: #4285f4;
+  color: #fff;
+}
+
+
+>>>.component-common_message .el-dialog__body {
+  height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.sidebar {
+  flex: 0 0 66px;
+  padding: 8px 0;
+  background: #4285f4;
+  color: #fff;
+}
+
+.el-dialog .el-dialog__header {
+  position: absolute;
+  right: 0;
+  top: 6px;
+  border-bottom: 0;
+  cursor: pointer;
+}
+
 
 .group_view .head .ri_btn .group_set {
   font-size: 14px;
