@@ -145,7 +145,7 @@
                                 <el-button size="small" plain>
                                     查重结果
                                 </el-button>
-                                <el-button size="small" type="primary" @click="updateSubmit" v-show="work.annex.score!=='未批'">
+                                <el-button size="small" type="primary" @click="updateSubmit" v-show="work.annex.score==='未批'&&work.annex.work!==null">
                                     更新提交
                                 </el-button>
                             </div>
@@ -162,7 +162,8 @@
                                     <p class="font24" style="color: rgb(66, 133, 244); margin-top: 40px;" v-show="isSubmit!==null && work.annex.score==='未批'"> 已提交</p>
                                     <p class="font16" v-show="work.annex.score!=='未批'">成绩</p>
                                     <p class="font24" style="color: rgb(95, 99, 104);" v-show="work.annex.score!=='未批'">
-                                        <span style="color: rgb(255, 96, 0);">{{work.annex.score}}</span>
+                                        <span style="color: rgb(255, 96, 0);" v-if="isNum(work.annex.score)">{{work.annex.score}}</span>
+                                        <span style="color: rgb(255, 96, 0);" v-else>分数未公布</span>
                                         /{{homeWork.allScore}}
                                     </p>
                                 </div>
@@ -309,7 +310,7 @@
                         <el-divider></el-divider>
                         <el-table
                             ref="multipleTable"
-                            :data="showStudentForm.filter(data => !searchName || data.user.name.includes(searchName)).slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage)"
+                            :data="showStudentForm2"
                             tooltip-effect="dark"
                             style="width: 100%"
                             @selection-change="handleSelectionChange">
@@ -418,30 +419,36 @@
                 <el-dialog
                     title="批量给分选中学生"
                     :visible.sync="unifiedPoints"
-                    width="25%">
-                    <el-divider></el-divider>
+                    width="300px">
                     <div class="points-content">
-                        你好
+                        <p style="margin-bottom: 24px;text-align: left">批量给分只对已交学生起作用</p>
+                        <div class="dialog-box text-center">
+                            <el-input style="width: 60px" v-model="uPoints"></el-input>
+                            <span>或</span>
+                            <span class="font12 read" @click="yiyue">已阅</span>
+                        </div>
                     </div>
-                    <el-divider></el-divider>
                     <span slot="footer" class="dialog-footer">
-                         <el-button @click="unifiedPoints = false;" size="small">取消</el-button>
-                        <el-button type="primary" @click="surePoint" :disabled="uPoints===''" size="small">确定</el-button>
+                         <el-button @click="unifiedPoints = false;" >取消</el-button>
+                        <el-button type="primary" @click="surePoint" :disabled="uPoints===''">确定</el-button>
                     </span>
                 </el-dialog>
                 <el-dialog
                     title="按“分数区间”随机给分"
                     :visible.sync="unifiedIntervalPoints"
-                    width="25%">
-                    <el-divider></el-divider>
+                    width="300px">
                     <div class="points-content">
-                        你好
+                        <p style="margin-bottom: 24px;text-align: left">批量给分只对已交学生起作用</p>
+                        <div class="dialog-box text-center">
+                            <el-input style="width: 60px" placeholder="最低分" v-model="uIntervalPointMin"></el-input>
+                            <span>&nbsp;-&nbsp;</span>
+                            <el-input style="width: 60px" placeholder="最高分" v-model="uIntervalPointMax"></el-input>
+                        </div>
                     </div>
-                    <el-divider></el-divider>
                     <span slot="footer" class="dialog-footer">
-                         <el-button @click="unifiedIntervalPoints = false" size="small">取消</el-button>
+                         <el-button @click="unifiedIntervalPoints = false" >取消</el-button>
                         <el-button type="primary" @click="sureIntervalPoint"
-                                   :disabled="uIntervalPointMin===''||uIntervalPointMax===''" size="small">确定</el-button>
+                                   :disabled="uIntervalPointMin===''||uIntervalPointMax===''" >确定</el-button>
                     </span>
                 </el-dialog>
             </el-tab-pane>
@@ -509,6 +516,11 @@ export default {
             uIntervalPointMax: "",
         }
     },
+    computed:{
+      showStudentForm2(){
+          return this.showStudentForm.filter(data => !this.searchName || data.user.name.includes(this.searchName)).slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage)
+      }
+    },
     methods: {
         handleClick(tabs) {
 
@@ -527,7 +539,11 @@ export default {
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
         },
-      //进入批阅
+      //   给成绩赋值为已阅
+        yiyue(){
+            this.uPoints = "已阅"
+        },
+      //,进入批阅
       openNew: function (stu) {
         let post1 = JSON.stringify(stu)
         let post2 = JSON.stringify(this.homeWork)
@@ -613,7 +629,7 @@ export default {
                 })
                 return;
             }
-            if (Number.parseFloat(score) >= this.homeWork.allScore) {
+            if (this.matchScore(score)) {
                 this.$message({
                     type: "error",
                     message: "请输入正确范围的分数"
@@ -634,6 +650,9 @@ export default {
         isNum(data) {
             return /^\d+$/.test(data)
         },
+        matchScore(data){
+            return Number.parseFloat(data) >= this.homeWork.allScore;
+        },
         //统一给分
         unifiedPoint() {
             if (this.checkCheckedStu()) {
@@ -641,7 +660,20 @@ export default {
             }
         },
         surePoint() {
-
+            if((this.matchScore(this.uPoints)&&this.isNum(this.uPoints))||this.uPoints==='未批'||this.uPoints==='已阅'){
+                this.checkedStu.forEach((item,index)=>{
+                    if(item.annex.work!==null&&!this.isNum(item.annex.score)){
+                        item.annex.score = this.uPoints
+                    }
+                })
+                console.log(this.checkedStu)
+               this.reqSetGrades()
+            }else{
+                this.$message({
+                    type:"error",
+                    message:"请输入正确的分数，数字、【已阅】或【未批】"
+                })
+            }
         },
         //统一区间给分
         unifiedIntervalPoint() {
@@ -649,8 +681,48 @@ export default {
                 this.unifiedIntervalPoints = true
             }
         },
-        sureIntervalPoint() {
-
+        sureIntervalPoint(){
+            if(this.isNum(this.uIntervalPointMin)&&this.isNum(this.uIntervalPointMax)&&this.chargeIntervalPoint()){
+                this.checkedStu.forEach((item,index)=>{
+                    if(item.annex.work!==null&&!this.isNum(item.annex.score)){
+                        item.annex.score = this.getRandom()
+                    }
+                })
+                this.reqSetGrades()
+            }else{
+                this.$message({
+                    type:"error",
+                    message:"请输入正确的分数区间"
+                })
+            }
+        },
+        chargeIntervalPoint(){
+          let max = Number.parseFloat(this.uIntervalPointMax)
+          let min = Number.parseFloat(this.uIntervalPointMin)
+          return min<max && !this.matchScore(max);
+        },
+        // 随机生成成绩
+        getRandom(){
+          let min = Math.ceil(Number.parseFloat(this.uIntervalPointMin))
+          let max = Math.floor((Number.parseFloat(this.uIntervalPointMax)))
+          return Math.floor(Math.random()*(max-min+1))+min
+        },
+        // 发送批量给分请求
+        reqSetGrades(){
+            postRequest(url.homeWork.setGrades,{
+                workId:this.homeWorkId,
+            },this.checkedStu).then(result=>{
+                this.$message({
+                    type:"success",
+                    message:"批量给分成功！"
+                })
+                this.checkedStu = []
+                this.unifiedIntervalPoints = false
+                this.unifiedPoints = false
+                // setTimeout(()=>{
+                //     window.location.reload()
+                // },1000)
+            })
         },
         //判断是否有选中的学生
         checkCheckedStu() {
@@ -739,7 +811,10 @@ export default {
 </script>
 <style scoped>
 >>> .el-dialog__body {
-    padding: 0;
+    padding: 20px 15px 15px 15px;
+    color: #606266;
+    font-size: 14px;
+    word-break: break-all;
 }
 >>> .el-dialog__body .el-divider--horizontal {
     margin: 10px 0;
@@ -750,10 +825,12 @@ export default {
 
 >>> .el-dialog__header {
     padding: 10px 10px 5px 10px;
+    border-bottom: 1px solid #dadce0;
     text-align: left;
 }
 
 >>> .el-dialog__footer {
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, .1);
     text-align: center;
 }
 
@@ -764,7 +841,11 @@ export default {
 .el-dropdown-link {
     margin-left: 20px;
 }
-
+.read {
+    margin-left: 9px;
+    color: #4285f4;
+    cursor: pointer;
+}
 .list-box-btn {
     display: inline-block;
     color: #4285f4;

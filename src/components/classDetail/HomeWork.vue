@@ -71,7 +71,8 @@
                     <p class="learning-state">
                         <span class="font-color--warning" v-show="!submit">未提交</span>
                         <span v-show="submit&&work22.annex.score==='未批'">已提交</span>
-                        <span class="font-color--main" v-show="work22.annex.score!=='未批'">已批改{{work22.annex.score}}分</span>
+                        <span class="font-color--main" v-show="work22.annex.score!=='未批'&&isNum(work22.annex.score)">已批改{{work22.annex.score}}分</span>
+                        <span class="font-color--main" v-show="work22.annex.score==='已阅'">已批改</span>
                     </p>
                 </div>
                 <div class="layout-right-functional">
@@ -119,6 +120,9 @@ export default {
         submitWork() {
             this.$bus.$emit("setHomeWork", this.work.id,true,this.isOwner)
             this.$bus.$emit("show", '作业详细')
+        },
+        isNum(data) {
+            return /^\d+$/.test(data)
         },
         showWork() {
             this.$bus.$emit("setHomeWork", this.work.id,false,this.isOwner)//传给header

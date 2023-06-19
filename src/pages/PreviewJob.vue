@@ -143,6 +143,7 @@ export default {
     let f2=decodeURIComponent(this.$route.query.homeWork)
     this.homeWork=JSON.parse(f2)
     this.getFiles()
+      this.score = this.stu.annex.score
     this.fileName = this.stu.annex.work.split('.')[1]+'.'+this.stu.annex.work.split('.')[2]
   }
 }
