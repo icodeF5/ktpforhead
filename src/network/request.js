@@ -10,11 +10,10 @@ export function getRequest(url, params){
     }
     return axios(options).then(
         response=>{
-            return response.data
+            return response
         },
         error=>{
-            console.log(error)
-            return null
+            return error
         }
     )
 }
@@ -31,10 +30,10 @@ export function postRequest(url,params,data){
     }
     return axios(options).then(
         response=>{
-            return response.data
+            return response
         },
         error=>{
-            console.log(error)
+            return error
         }
     )
 }

@@ -28,13 +28,16 @@ export default {
         // ...mapState(['heads'])
     },
     methods: {
-        toClassDetail(sClass) {
+        toClassDetail(sClass,flag) {
             this.$router.push({
                 path: "/main/classDetail",
                 query: {
                     showClassCode: sClass.code,
                 }
             })
+            if (flag){
+                window.location.reload()
+            }
         },
         contains(arr, value) {
             for (let i = 0; i < arr.length; i++) {
@@ -51,7 +54,11 @@ export default {
             this.heads.push(value)
         },
         headsSplice(index) {
+            console.log("下标："+index+",移除之前")
+            console.log(this.heads)
             this.heads.splice(index);
+            console.log("移除之后")
+            console.log(this.heads)
         },
         reStart() {
             this.heads = []
@@ -61,18 +68,19 @@ export default {
     watch:{
       $route(to,from){
           let value = to.name;
+          console.log("跳转到"+value)
           if(value==='我的课堂'){
               this.reStart()
+              console.log("回主页")
               return;
           }
-          if(this.heads[this.heads.length-1]===value){
-              return
-          }
           if (!this.contains(this.heads, value)) {
+              console.log("添加")
               this.headsPush(value)
           } else {
               let index = this.heads.indexOf(value);
-              this.headsSplice(index)
+              console.log("移除")
+              this.headsSplice(index+1)
           }
       }
     },

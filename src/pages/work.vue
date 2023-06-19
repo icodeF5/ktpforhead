@@ -553,7 +553,7 @@ export default {
                 jumpId:this.homeWorkId,
             }).then(result=>{
                 this.$message({
-                    type:result.r,
+                    type:result.data.r,
                     message:result.message
                 })
             })
@@ -683,8 +683,8 @@ export default {
                 accountName: sessionStorage.getItem("accountName"),
                 id: this.homeWorkId
             }).then(result => {
-                this.work = result.r
-                this.isSubmit = result.r.annex.work!==null
+                this.work = result.data.r
+                this.isSubmit = result.data.r.annex.work!==null
                 this.isShow = true
             })
         },
@@ -692,13 +692,13 @@ export default {
             getRequest(url.homeWork.getAllStudent, {
                 id: this.homeWorkId
             }).then(result => {
-                this.studentForm = result.r == null ? [] : result.r;
+                this.studentForm = result.data.r == null ? [] : result.data.r;
                 this.showStudentForm = this.studentForm;
             })
             getRequest(url.homeWork.status, {
                 id: this.homeWorkId
             }).then(result => {
-                this.status = result.r
+                this.status = result.data.r
                 this.isShow = true
             })
            setTimeout(()=>{
@@ -711,7 +711,7 @@ export default {
         getRequest(url.homeWork.getById, {
             workId: this.homeWorkId
         }).then(result => {
-            this.homeWork = result.r
+            this.homeWork = result.data.r
         })
         if (this.isOwner === 'false') {
             this.iniAllForStu()

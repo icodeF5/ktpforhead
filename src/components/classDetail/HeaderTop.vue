@@ -336,15 +336,15 @@ export default {
                 code: this.showClassCode
             }).then(result => {
                 this.isShow = false
-                this.homeWork = result.r == null ? [] : result.r;
+                this.homeWork = result.data.r == null ? [] : result.data.r;
                 this.isShow = true;
             })
             getRequest(url.course.getByCode, {
                 code: this.showClassCode
             }).then(result => {
                 this.isShow = false
-                this.$store.state.showClass = result.r
-                this.isOwner = result.r.ownerId === sessionStorage.getItem("accountName")
+                this.$store.state.showClass = result.data.r
+                this.isOwner = result.data.r.ownerId === sessionStorage.getItem("accountName")
                 this.showClass = true
                 this.isShow = true
             })

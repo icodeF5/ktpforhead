@@ -374,11 +374,8 @@ export default {
         },
         // 控制消息弹窗
         setMessage(message){
-            console.log("进入设置消息弹框")
             this.message = message
             this.emailDialog = message.length!==0;
-            console.log(this.message)
-            console.log(this.emailDialog)
         },
         // 已读全部消息
         readAll(){
@@ -399,16 +396,15 @@ export default {
                     accountName:sessionStorage.getItem("accountName"),
                     isGuiDang:true
                 }).then(result=>{
-                    console.log(result.r)
-                    this.guiDangCreateClass = result.r
+                    this.guiDangCreateClass = result.data.r
                 })
             }
             getRequest(url.user.getGroupJoinClass,{
                 accountName:sessionStorage.getItem("accountName"),
                 isGuiDang:true
             }).then(result=>{
-                console.log(result.r)
-                this.guiDangJoinClass = result.r
+
+                this.guiDangJoinClass = result.data.r
             })
         },
         guiDangTabClick(tab){
@@ -513,7 +509,7 @@ export default {
                     }).then(result => {
                         this.$message({
                             type: "success",
-                            message: result.message,
+                            message: result.data.message,
                         })
                         window.location.reload();
                     })
@@ -608,7 +604,6 @@ export default {
                     if(this.Class[i][0].startTime===sClass.startTime&&
                         this.Class[i][0].endTime===sClass.endTime&&
                         this.Class[i][0].season===sClass.season){
-                        console.log("hhhhh")
                         flag = false
                         this.Class[i].push(sClass)
                     }else if(this.Class[i][0].startTime<sClass.startTime){
@@ -628,7 +623,6 @@ export default {
                                this.guiDangJoinClass.splice(i,1)
                            }
                            flag = false
-                           console.log("已从归档加入课程移除")
                            break;
                        }
                    }
@@ -639,7 +633,6 @@ export default {
                     if(this.teachClass[i][0].startTime===sClass.startTime&&
                         this.teachClass[i][0].endTime===sClass.endTime&&
                         this.teachClass[i][0].season===sClass.season){
-                        console.log("hhhhh")
                         flag = false
                         this.teachClass[i].push(sClass)
                     }else if(this.teachClass[i][0].startTime<sClass.startTime){
@@ -659,7 +652,6 @@ export default {
                                 this.guiDangCreateClass.splice(i,1)
                             }
                             flag = false
-                            console.log("已从归档创建课程移除")
                             break;
                         }
                     }
@@ -667,7 +659,6 @@ export default {
             }
             this.$forceUpdate()
             this.guiDangIndex = 0;
-            console.log('重新渲染')
         },
         guiDangM(sClass,type,isTop){
             if(isTop){
@@ -676,7 +667,6 @@ export default {
                         this.topClass[i].endTime===sClass.endTime&&
                         this.topClass[i].season===sClass.season){
                         this.topClass.splice(i,1);
-                        console.log("已从置顶课程移除...")
                         break;
                     }
                 }
@@ -691,7 +681,6 @@ export default {
                                 this.Class.splice(i,1)
                             }
                             flag = false
-                            console.log("已从加入课程移除")
                             break;
                         }
                     }
@@ -721,7 +710,6 @@ export default {
                                 this.teachClass.splice(i,1)
                             }
                             flag = false
-                            console.log("已从创建课程移除")
                             break;
                         }
                     }
@@ -744,7 +732,6 @@ export default {
             }
             this.$forceUpdate()
             this.guiDangIndex = 0
-            console.log('重新渲染')
         }
     },
     created() {

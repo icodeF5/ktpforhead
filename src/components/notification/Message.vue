@@ -45,8 +45,8 @@ export default {
                 getRequest(url.homeWork.getById,{
                     workId:this.message.jumpId
                 }).then(result=>{
-                    console.log(result.r.code)
-                    this.$bus.$emit('setHomeWork',this.message.jumpId,false,false,result.r.code)
+                    console.log(result.data.r.code)
+                    this.$bus.$emit('setHomeWork',this.message.jumpId,false,false,result.data.r.code)
                     this.$bus.$emit('show','作业详细')
                 })
             }
@@ -58,7 +58,7 @@ export default {
                 this.message.isRead = true
                 this.$bus.$emit("ignoreMessage",this.message);
                 this.$message({
-                    type:result.r,
+                    type:result.data.r,
                     message:result.message
                 })
             })

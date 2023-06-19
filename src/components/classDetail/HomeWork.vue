@@ -134,8 +134,8 @@ export default {
                     id:this.work.id
                 }).then(result=>{
                     this.$message({
-                        type: result.r,
-                        message: result.message
+                        type: result.data.r,
+                        message: result.data.message
                     });
                 })
                 this.$bus.$emit('deleteHomework',this.work)
@@ -153,9 +153,9 @@ export default {
             getRequest(url.homeWork.status,{
                 id:this.work.id
             }).then(result=>{
-                this.status = result.r;
+                this.status = result.data.r;
                 console.log("获取作业状态")
-                console.log(result.r)
+                console.log(result.data.r)
                 this.isShow = true
             })
         },
@@ -164,8 +164,8 @@ export default {
                 accountName: sessionStorage.getItem("accountName"),
                 id: this.work.id
             }).then(result => {
-                this.work22 = result.r
-                this.submit = result.r.annex.work!==null
+                this.work22 = result.data.r
+                this.submit = result.data.r.annex.work!==null
                 this.isShow = true
             })
         },
@@ -174,7 +174,7 @@ export default {
             getRequest(url.course.getByCode,{
                 code:this.work.code,
             }).then(result=>{
-                this.isOwner = result.r.ownerId===sessionStorage.getItem("accountName")
+                this.isOwner = result.data.r.ownerId===sessionStorage.getItem("accountName")
                 console.log(this.isOwner)
                 if(this.isOwner){
                     console.log("老师")

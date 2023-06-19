@@ -57,8 +57,8 @@ export default {
                     type:'success',
                     message:result.message
                 })
-                console.log(result.r)
-                this.$bus.$emit('noGuiDang',this.sClass,this.type,result.r)//viewHome组件
+                console.log(result.data.r)
+                this.$bus.$emit('noGuiDang',this.sClass,this.type,result.data.r)//viewHome组件
             })
         },
         deleteClass(){

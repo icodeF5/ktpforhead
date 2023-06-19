@@ -262,9 +262,8 @@ export default {
                     accountName: this.user.username,
                     password: this.user.password
                 }).then(result => {
-                    if (result.success) {
-                      let token = result.r;
-                      console.log(token)
+                    if (result.data.success) {
+                      let token = result.data.r;
                       localStorage.setItem('access-admin', token)
                         sessionStorage.setItem("accountName",this.user.username);
                         sessionStorage.setItem('heads', JSON.stringify([]));
@@ -278,7 +277,7 @@ export default {
                     } else {
                         this.$message({
                             type:"error",
-                            message:result.message
+                            message:result.data.message
                         });
                     }
                 })
@@ -296,8 +295,7 @@ export default {
                     school: this.loginUser.school,
                     userId:this.loginUser.studentId,
                 }).then(result => {
-                    console.log(result)
-                    if (result.success) {
+                    if (result.data.success) {
                         this.$message({
                             type:"success",
                             message:"创建成功"
@@ -306,7 +304,7 @@ export default {
                     }else{
                         this.$message({
                             type:"error",
-                            message:result.message,
+                            message:result.data.message,
                         })
                         this.recover()
                     }
@@ -328,7 +326,7 @@ export default {
         //学校搜索
         loadAll() {
             getRequest(url.school.getAllSchool,{}).then(result=>{
-                let s = result.r;
+                let s = result.data.r;
                 for (let i = 0; i < s.length; i++) {
                     this.school.push({value: s[i]})
                 }

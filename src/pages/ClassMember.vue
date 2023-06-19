@@ -96,7 +96,7 @@ export default {
       getRequest(url.course.findPerson, {
         code: that.showClassCode
       }).then(result => {
-        that.tableData = result.r;
+        that.tableData = result.data.r;
         console.log(that.tableData)
         that.formatDate()
       })
@@ -107,7 +107,7 @@ export default {
       getRequest(url.course.getByCode, {
         code: that.showClassCode
       }).then(result => {
-        that.teacherData.push(result.r);
+        that.teacherData.push(result.data.r);
       })
     },
 

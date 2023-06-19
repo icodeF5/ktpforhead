@@ -1,5 +1,5 @@
 <template xmlns="">
-    <div class="component-header" v-if="isShow">
+    <div class="component-header">
         <div class="header-content" v-show="heads.length===0">
             <img src="../assets/img/logo_blue.png" alt="" class="header-left">
             <div class="font14 home-font" @click="toMain">
@@ -180,7 +180,6 @@ export default {
 
             Class2:[],
             teachClass2:[],
-            isShow:false ,
         }
     },
     computed: {
@@ -316,14 +315,14 @@ export default {
                     url: "http://localhost:8080/user/getJoinClass",
                     params: {
                         accountName: sessionStorage.getItem("accountName"),
-                        isGuiDang:false,
+                        isGuiDang:null,
                     }
                 }),
                 axios({
                     url: "http://localhost:8080/user/getCreatClass",
                     params: {
                         accountName: sessionStorage.getItem("accountName"),
-                        isGuiDang:false,
+                        isGuiDang:null,
                     }
                 }),
                 axios({
@@ -336,12 +335,11 @@ export default {
                 this.Class2 = res1.data.r==null?[]:res1.data.r;
                 this.teachClass2 = res2.data.r==null?[]:res2.data.r;
                 this.$store.state.isTeacher = res3.data.r;
-                this.isShow = true
             }))
             getRequest(url.message.getNoRead,{
                 accountName:sessionStorage.getItem("accountName")
             }).then(result=>{
-                this.message = result.r
+                this.message = result.data.r
                 this.setMessage()
             })
         }

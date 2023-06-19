@@ -90,61 +90,61 @@ export default {
         return {
             bcImg: require("../assets/bg/5.png"),
             isOwner: this.sClass.ownerId === sessionStorage.getItem("accountName"),
-            guiDangDialogTea:false,
-            guiDangDialogStu:false,
+            guiDangDialogTea: false,
+            guiDangDialogStu: false,
         }
     },
-    computed:{
-      ...mapState(['isTeacher'])
+    computed: {
+        ...mapState(['isTeacher'])
     },
     methods: {
         handleCommand2(command) {
 
         },
-        openGuiDang(){
+        openGuiDang() {
             console.log("进入归档")
-            if(this.isOwner){
+            if (this.isOwner) {
                 this.guiDangDialogTea = true
-            }else{
+            } else {
                 this.guiDangDialogStu = true
             }
         },
-        guiDangForAll(){
-            getRequest(url.course.guiDangForAll,{
-                code:this.sClass.code,
-                accountName:sessionStorage.getItem("accountName")
-            }).then(result=>{
+        guiDangForAll() {
+            getRequest(url.course.guiDangForAll, {
+                code: this.sClass.code,
+                accountName: sessionStorage.getItem("accountName")
+            }).then(result => {
                 this.$message({
-                    type:result.r,
-                    message:result.message
+                    type: result.data.r,
+                    message: result.data.message
                 })
-                this.$bus.$emit("guiDang",this.sClass,'create',this.isTop)
+                this.$bus.$emit("guiDang", this.sClass, 'create', this.isTop)
                 this.guiDangDialogTea = false
             })
         },
-        guiDangForMe(){
-            if(this.isOwner){
-                getRequest(url.course.guiDangForTea,{
-                    code:this.sClass.code,
-                    accountName:sessionStorage.getItem("accountName")
-                }).then(result=>{
+        guiDangForMe() {
+            if (this.isOwner) {
+                getRequest(url.course.guiDangForTea, {
+                    code: this.sClass.code,
+                    accountName: sessionStorage.getItem("accountName")
+                }).then(result => {
                     this.$message({
-                        type:result.r,
-                        message:result.message
+                        type: result.data.r,
+                        message: result.data.message
                     })
-                    this.$bus.$emit("guiDang",this.sClass,'create',this.isTop)
+                    this.$bus.$emit("guiDang", this.sClass, 'create', this.isTop)
                     this.guiDangDialogTea = false
                 })
-            }else{
-                getRequest(url.course.guiDangForStu,{
-                    code:this.sClass.code,
-                    accountName:sessionStorage.getItem("accountName")
-                }).then(result=>{
+            } else {
+                getRequest(url.course.guiDangForStu, {
+                    code: this.sClass.code,
+                    accountName: sessionStorage.getItem("accountName")
+                }).then(result => {
                     this.$message({
-                        type:result.r,
-                        message:result.message
+                        type: result.data.r,
+                        message: result.data.message
                     })
-                    this.$bus.$emit("guiDang",this.sClass,'join',this.isTop)
+                    this.$bus.$emit("guiDang", this.sClass, 'join', this.isTop)
                     this.guiDangDialogStu = false
                 })
             }
@@ -160,16 +160,16 @@ export default {
                     axios.get("http://localhost:8080/course/outClass?accountName=" + sessionStorage.getItem("accountName") +
                         "&code=" + this.sClass.code).then(
                         response => {
+                            this.$message({
+                                type: 'success',
+                                message: '退课成功!'
+                            });
                             window.location.reload();
                         },
                         error => {
                             this.$message("错误")
                         }
                     )
-                    this.$message({
-                        type: 'success',
-                        message: '退课成功!'
-                    });
                 }).catch(() => {
                     this.$message({
                         type: 'info',
@@ -200,24 +200,27 @@ export default {
 }
 </script>
 <style scoped>
->>>.el-dialog__header{
+>>> .el-dialog__header {
     text-align: left;
     font-weight: bold;
     border-bottom: 1px solid #dadce0;
 }
->>>.el-dialog__body {
+
+>>> .el-dialog__body {
     padding: 20px 15px 15px 15px;
     color: #606266;
     text-align: left;
     font-size: 14px;
     word-break: break-all;
 }
->>>.el-dialog__footer {
+
+>>> .el-dialog__footer {
     padding: 10px 20px 10px;
     text-align: right;
     box-sizing: border-box;
     border-top: 1px solid #dadce0;
 }
+
 .view-home .tag-flag.role-s {
     background-color: #fff;
     border: 1px solid #4285f4;

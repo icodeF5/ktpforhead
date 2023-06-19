@@ -62,7 +62,7 @@ export default {
             getRequest(url.message.getAll,{
                 accountName:sessionStorage.getItem("accountName")
             }).then(result=>{
-                this.message = result.r
+                this.message = result.data.r
             })
         },
     },

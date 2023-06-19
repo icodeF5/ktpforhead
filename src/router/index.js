@@ -10,6 +10,7 @@ import Notification from "@/pages/Notification.vue";
 import ClassMember from "@/pages/ClassMember.vue";
 import PreviewJob from "@/pages/PreviewJob";
 import axios from "axios";
+import {Message} from "element-ui";
 
 
 Vue.use(VueRouter)
@@ -144,22 +145,13 @@ router.beforeEach((to, from, next) => {
     } else {
         let admin = window.localStorage.getItem('access-admin')
         if (!admin) {
+            Message({
+                type:"error",
+                message:"登录身份已过期，请重新登录！"
+            })
             next({path:'/login'})
         }
         else {
-            // 校验 token 合法性
-            // axios({
-            //     url: 'http://localhost:8080/checkToken',
-            //     method: 'get',
-            //     headers: {
-            //         token: admin.token
-            //     }
-            // }).then(res => {
-            //     if (!res.data) {
-            //         console.log('校验失败')
-            //         next({path: '/error'})
-            //     }
-            // })
             next()
         }
     }

@@ -17,7 +17,7 @@ export default {
             // this.$router.push({
             //     path:"/main"
             // })
-            this.$bus.$emit("toClassDetail",this.showClass);
+            this.$bus.$emit("toClassDetail",this.showClass,true);
         }
     }
 }

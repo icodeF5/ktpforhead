@@ -22,17 +22,17 @@ export default new Vuex.Store({
             getRequest(url.user.isTeacher,{
                 accountName:sessionStorage.getItem("accountName")
             }).then(result=>{
-                context.state.isTeacher = result.r;
+                context.state.isTeacher = result.data.r;
                 let classTab = sessionStorage.getItem("classTab");
-                value.activeName = classTab==null?result.r?'third':"second":classTab;
-                value.guiDangActiveName = result.r?'first':'second';
+                value.activeName = classTab==null?result.data.r?'third':"second":classTab;
+                value.guiDangActiveName = result.data.r?'first':'second';
             })
         },
         setShowClass(context,value){
             getRequest(url.course.getByCode,{
                 code:value
             }).then(result=>{
-                context.state.showClass = result.r
+                context.state.showClass = result.data.r
             })
         },
         readAll(context,value){
@@ -40,7 +40,7 @@ export default new Vuex.Store({
                 accountName:sessionStorage.getItem("accountName"),
             }).then(result=>{
             })
-        }
+        },
     },
     modules: {}
 })
