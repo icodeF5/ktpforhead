@@ -10,6 +10,9 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
+//websocket
+import websocket from 'vue-native-websocket';
+
 /*导入vuex*/
 import store from './store'
 /*导入ElementUI*/
@@ -71,6 +74,14 @@ axios.interceptors.response.use(response => {
         }
         return Promise.reject(error);
     })
+
+Vue.use(websocket, '', {
+  connectManually: true, // 手动连接
+  format: 'json', // json格式
+  reconnection: true, // 是否自动重连
+  reconnectionAttempts: 5, // 自动重连次数
+  reconnectionDelay: 2000, // 重连间隔时间
+});
 
 new Vue({
     // 在全局文件中注册路由
