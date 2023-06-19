@@ -39,7 +39,7 @@
                 <el-dropdown @command="handleCommand2" v-show="isOwner" trigger="click" placement="top-start">
                     <img alt="" src="../assets/zankai.png" style="width: 14px;margin-left: 5px">
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="a">删除</el-dropdown-item>
+                        <el-dropdown-item command="a" @click.native="deleteClass">删除</el-dropdown-item>
                         <el-dropdown-item command="b">编辑</el-dropdown-item>
                         <el-dropdown-item command="c" @click.native="openGuiDang">归档管理</el-dropdown-item>
                         <el-dropdown-item command="d">复制成新课程</el-dropdown-item>
@@ -74,12 +74,39 @@
                 <el-button type="primary" @click="guiDangForMe" size="small">归档自己</el-button>
             </div>
         </el-dialog>
+        <el-dialog :visible.sync="deleteClassDialog" width="450px">
+            <div slot="title">
+                确定要删除<span class="font-color--main">{{sClass.name}}</span>?
+            </div>
+            <p style="line-height: 25px;">你的这个课程的任何信息或评论将被永久删除</p>
+            <p class="font-color--warning" style="line-height: 25px;">警告：此操作无法撤销</p>
+            <p class="font-color--main" style="line-height: 25px;">提醒：已用课程数包含了"删除课程数"</p>
+            <el-form ref="deleteClassForm" :model="user" :rules="deleteRule" style="margin-top: 10px">
+                <el-form-item prop="password">
+                    <el-input placeholder="请输入密码" v-model="user.password" show-password></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer-more">
+                <div class="footer-left">
+                    <p>忘记密码？</p>
+                    <p>
+                        可前往
+                        <span style="color: rgb(66, 133, 244); cursor: pointer;">账号设置</span>
+                        处修改
+                    </p>
+                </div>
+                <div class="footer-right">
+                    <el-button plain @click="deleteClassDialog = false">取消</el-button>
+                    <el-button type="primary" @click="trueDeleteClass">确认</el-button>
+                </div>
+            </div>
+        </el-dialog>
     </div>
 </template>
 <script>
 import {mapState} from "vuex";
 import axios from "axios";
-import {getRequest} from "network/request";
+import {getRequest, postRequest} from "network/request";
 import url from "network/url";
 import fa from "element-ui/src/locale/lang/fa";
 
@@ -89,6 +116,17 @@ export default {
     data() {
         return {
             bcImg: require("../assets/bg/5.png"),
+            deleteClassDialog:false,
+            // 删除课程要用的账号密码
+            user:{
+              accountName:sessionStorage.getItem("accountName"),
+              password:"",
+            },
+            deleteRule:{
+                password:[
+                    {required:true,message:"必填项",trigger:"blur"}
+                ]
+            },
             isOwner: this.sClass.ownerId === sessionStorage.getItem("accountName"),
             guiDangDialogTea: false,
             guiDangDialogStu: false,
@@ -101,6 +139,31 @@ export default {
         handleCommand2(command) {
 
         },
+        // 删除课程
+        deleteClass(){
+            this.deleteClassDialog = true
+        },
+        // 确认删除
+        trueDeleteClass(){
+            this.$refs.deleteClassForm.validate().then(()=>{
+                postRequest(url.course.deleteClass,{
+                    code:this.sClass.code
+                },this.user).then(result=>{
+                    let success = result.data.success
+                    this.$message({
+                        type:result.data.r,
+                        message:result.data.message
+                    })
+                    if(success){
+                       setTimeout(()=>{
+                           window.location.reload()
+                        },1000)
+                    }
+
+                })
+            })
+        },
+        // 归档
         openGuiDang() {
             console.log("进入归档")
             if (this.isOwner) {
@@ -219,6 +282,17 @@ export default {
     text-align: right;
     box-sizing: border-box;
     border-top: 1px solid #dadce0;
+}
+
+.dialog-footer-more {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+}
+.dialog-footer-more .footer-left {
+    font-size: 12px;
+    display: flex;
 }
 
 .view-home .tag-flag.role-s {

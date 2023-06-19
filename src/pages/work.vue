@@ -196,9 +196,9 @@
                                     <el-tag size="small">个人作业</el-tag>
                                     <el-tag size="small">
                                         提交起止时间
-                                        {{ (new Date(homeWork.startTime).toLocaleDateString("zh-CN", timeOption)) }}
+                                        {{ workStartTime }}
                                         -
-                                        {{ (new Date(homeWork.endTime).toLocaleDateString("zh-CN", timeOption)) }}
+                                        {{ workEndTime }}
                                     </el-tag>
                                     <el-tag type="info" size="small">{{ homeWork.allScore }}分</el-tag>
                                 </div>
@@ -243,7 +243,7 @@
                     <div class="top">
                         <div class="top-l">
                             <el-tag size="small">截止时间:
-                                {{ (new Date(homeWork.endTime).toLocaleDateString("zh-CN", timeOption)) }}
+                                {{ workEndTime }}
                             </el-tag>
                             <el-tag type="info" size="small" class="ml8">个人作业</el-tag>
                         </div>
@@ -469,6 +469,10 @@ export default {
             isUpdate:false,
             isShow: true,
             homeWork: {},
+            // 作业结束时间
+            workEndTime:"",
+            // 作业开始时间
+            workStartTime:"",
             comment: "",
             activeName: this.submit === 'true' ? "second" : "first",
             activeName2: sessionStorage.getItem("tea-tab") || "first",
@@ -711,7 +715,18 @@ export default {
         getRequest(url.homeWork.getById, {
             workId: this.homeWorkId
         }).then(result => {
+            if(result.data.r===null){
+                this.$message({
+                    type:"error",
+                    message:"无权访问该班级，即将返回上一个页面"
+                })
+                setTimeout(()=>{
+                    this.$router.back()
+                },1500)
+            }
             this.homeWork = result.data.r
+            this.workStartTime = new Date(this.homeWork.startTime).toLocaleDateString("zh-CN", this.timeOption)
+            this.workEndTime = new Date(this.homeWork.endTime).toLocaleDateString("zh-CN", this.timeOption)
         })
         if (this.isOwner === 'false') {
             this.iniAllForStu()

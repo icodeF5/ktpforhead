@@ -342,6 +342,15 @@ export default {
             getRequest(url.course.getByCode, {
                 code: this.showClassCode
             }).then(result => {
+                if(result.data.r===null){
+                    this.$message({
+                        type:"error",
+                        message:"无权访问该班级，即将返回上一个页面"
+                    })
+                    setTimeout(()=>{
+                        this.$router.back()
+                    },1500)
+                }
                 this.isShow = false
                 this.$store.state.showClass = result.data.r
                 this.isOwner = result.data.r.ownerId === sessionStorage.getItem("accountName")

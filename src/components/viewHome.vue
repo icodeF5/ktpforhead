@@ -753,9 +753,6 @@ export default {
     font-weight: bold;
     border-bottom: 1px solid #dadce0;
 }
->>>.el-input__inner {
-    border-radius: 20px;
-}
 >>> .el-dialog__footer {
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, .1);
 }

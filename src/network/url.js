@@ -6,6 +6,7 @@ const url = {
         setTop:"/course/setTop",
         deleteTop:"/course/deleteTop",
         outClass:"/course/outClass",
+        deleteClass:"/course/deleteClass",
         joinClass:"/course/joinClass",
         createClass:"/course/createClass",
         getAllStudent:"/course/getAllStudent",
