@@ -140,7 +140,6 @@ router.beforeEach((to, from, next) => {
     /* to: 下一个页面*/
 
     if (to.path.startsWith('/login')) {
-        window.localStorage.removeItem('access-admin')
         next()
     } else {
         let admin = window.localStorage.getItem('access-admin')

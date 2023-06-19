@@ -27,6 +27,7 @@ const url = {
         getTopClass:"/user/getTopClass",
         openClass:"/user/openClass",
         closeClass:"/user/closeClass",
+        autoLoginKtp:"/user/autoLoginKtp"
     },
     homeWork:{
         publishWork:"/homeWork/publishWork",

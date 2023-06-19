@@ -48,17 +48,13 @@ export default {
             return false;
         },
         headsPush(value) {
-            if(value==='通知'||value==='课程内容'||value==='任务列表'){
+            if(value==='通知'||value==='课程内容'||value==='任务管理'){
                 this.heads.splice(0,this.heads.length)
             }
             this.heads.push(value)
         },
         headsSplice(index) {
-            console.log("下标："+index+",移除之前")
-            console.log(this.heads)
             this.heads.splice(index);
-            console.log("移除之后")
-            console.log(this.heads)
         },
         reStart() {
             this.heads = []

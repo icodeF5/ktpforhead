@@ -234,6 +234,7 @@ export default {
                 sessionStorage.removeItem('classDetail');
                 sessionStorage.removeItem('tea-tab');
                 sessionStorage.removeItem('heads');
+                localStorage.removeItem("autoLogin")
                 this.$router.push({
                     path: "/login",
                 })

@@ -21,8 +21,7 @@
                             <el-form-item>
                                 <div class="flex-between">
                                     <div>
-                                        <input type="checkBox" @click="checked"></input>
-                                        <span class="el-form-input" ref="autoLogin">下次自动登录</span>
+                                        <el-checkbox v-model="autoLogin">下次自动登录</el-checkbox>
                                     </div>
                                     <button class="el-form-btn">
                                         <span class="el-form-forgetPassWord">忘记密码?</span>
@@ -137,6 +136,8 @@ export default {
                 username: "",
                 password: "",
             },
+            // 是否自动登录
+            autoLogin:false,
             //注册的信息
             loginUser: {
                 accountName: "",
@@ -190,8 +191,6 @@ export default {
                     {require:true,message:"不能为空",trigger:"blur"}
                 ]
             },
-            // 初始化下次自动登录框状态
-            autoLogin: false,
         };
     },
     computed: {},
@@ -232,13 +231,6 @@ export default {
                 this.schoolOptions = [];
             }
         },
-        checked(event) {
-            if (event.target.checked) {
-                this.$refs.autoLogin.style.color = "#4285f4";
-            } else {
-                this.$refs.autoLogin.style.color = "#2C3E50";
-            }
-        },
       keyDownL(e) {
           console.log("jinru")
         // 回车则执行登录方法 enter键的ASCII是13
@@ -263,6 +255,9 @@ export default {
                     password: this.user.password
                 }).then(result => {
                     if (result.data.success) {
+                        if(this.autoLogin){
+                            localStorage.setItem("autoLogin","true")
+                        }
                       let token = result.data.r;
                       localStorage.setItem('access-admin', token)
                         sessionStorage.setItem("accountName",this.user.username);
@@ -334,8 +329,35 @@ export default {
         },
     },
     mounted() {
-        this.loadAll();
-      window.addEventListener("keydown", this.keyDownL);
+        let autoLogin = localStorage.getItem("autoLogin")
+        if(autoLogin){
+            getRequest(url.user.autoLoginKtp,{}).then(result=>{
+                console.log("自动登录")
+                console.log(result)
+                let success = result.data.success
+                if(success){
+                    console.log("成功！")
+                    let user = result.data.r
+                    sessionStorage.setItem("accountName",user.accountName);
+                    sessionStorage.setItem('heads', JSON.stringify([]));
+                    this.$message({
+                        type:"success",
+                        message:"自动登录成功！"
+                    });
+                    this.$router.push({
+                        path: "/main",
+                    })
+                }else{
+                    this.$message({
+                        type:result.data.r,
+                        message:result.data.message,
+                    })
+                }
+            })
+        }else{
+            this.loadAll();
+            window.addEventListener("keydown", this.keyDownL);
+        }
     },
   destroyed() {
     // 销毁事件
