@@ -271,7 +271,7 @@ export default {
                 title: "",
                 des: "",
                 time: "",
-                allScore: 0,
+                score: "",
             },
             newWorksRule: {
                 title: [
@@ -318,7 +318,7 @@ export default {
                 accountName:sessionStorage.getItem("accountName")
             }, {
                 title: this.newWork.title,
-                allScore: Number.parseFloat(this.newWork.allScore),
+                allScore: Number.parseFloat(this.newWork.score),
                 des: this.newWork.des,
                 startTime: this.newWork.time[0],
                 endTime: this.newWork.time[1],

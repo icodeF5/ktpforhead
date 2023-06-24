@@ -141,6 +141,9 @@ export default {
                         type: result.data.r,
                         message: result.data.message
                     });
+                    setTimeout(()=>{
+                        window.location.reload()
+                    },1000)
                 })
                 this.$bus.$emit('deleteHomework',this.work)
             }).catch(() => {
