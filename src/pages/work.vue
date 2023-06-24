@@ -110,6 +110,9 @@
                                         id:homeWork.id,
                                         isUpdate:isUpdate,
                                     }"
+                                :headers="{
+                                    token:token
+                                }"
                                 multiple
                                 ref="upload"
                                 :auto-upload="false">
@@ -514,6 +517,8 @@ export default {
             unifiedIntervalPoints: false,
             uIntervalPointMin: "",
             uIntervalPointMax: "",
+        //     token
+            token:localStorage.getItem('access-admin'),
         }
     },
     computed:{
@@ -558,6 +563,7 @@ export default {
       },
         //提交作业
         submitWork() {
+            console.log("提交作业")
             this.$refs.upload.submit();
             this.isUpdate = false
             window.location.reload()
