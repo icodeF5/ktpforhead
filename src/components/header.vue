@@ -350,6 +350,7 @@ export default {
         this.$bus.$on("show", this.show);
         this.$bus.$on("setHomeWork", this.setHomeWork);
         this.$bus.$on("ignoreMessage",this.ignoreMessage);//给Message组件使用
+        this.$bus.$on("readAll",this.readAll);//给viewHome使用
         this.iniALL();
     },
 }

@@ -379,10 +379,8 @@ export default {
         },
         // 已读全部消息
         readAll(){
-            this.$store.dispatch('readAll')
-            for(let i = 0;i<this.message.length;i++){
-                this.message.pop()
-            }
+            this.$bus.$emit("readAll")
+            this.message=[]
         },
         // 查看全部消息
         checkAll(){
